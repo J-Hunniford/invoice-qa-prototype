@@ -1,0 +1,594 @@
+{
+  "_comment": "Golden eval set. Each case names the acceptance criterion it exercises. 'offline' cases assert deterministic routing from a supplied classification and need no model call; 'online' cases run the full pipeline against the live model. Weighted toward adversarial inputs, because the guardrails are the part worth proving.",
+  "offline": [
+    {
+      "id": "OFF-01",
+      "ac": "AC4",
+      "name": "Dispute intent never reaches the answer path",
+      "intent": {
+        "intent": "dispute",
+        "referenced_invoice_ids": [],
+        "implies_older_history": false,
+        "needs_history": false
+      },
+      "selected": null,
+      "expect": {
+        "terminal": true,
+        "state": "dispute"
+      }
+    },
+    {
+      "id": "OFF-02",
+      "ac": "AC4",
+      "name": "Dispute outranks a co-occurring factual question",
+      "intent": {
+        "intent": "dispute",
+        "referenced_invoice_ids": [
+          "INV-1014"
+        ],
+        "implies_older_history": false,
+        "needs_history": true
+      },
+      "selected": "INV-1014",
+      "expect": {
+        "terminal": true,
+        "state": "dispute"
+      }
+    },
+    {
+      "id": "OFF-03",
+      "ac": "Non-Goal",
+      "name": "Cross-merchant question is disclosed, not folded into a decline",
+      "intent": {
+        "intent": "cross_merchant",
+        "referenced_invoice_ids": [],
+        "implies_older_history": false,
+        "needs_history": false
+      },
+      "selected": null,
+      "expect": {
+        "terminal": true,
+        "state": "out_of_scope"
+      }
+    },
+    {
+      "id": "OFF-08",
+      "ac": "Technical Constraints",
+      "name": "Retrieval is bounded to the 12-month window",
+      "intent": {
+        "intent": "comparative",
+        "referenced_invoice_ids": [],
+        "implies_older_history": true,
+        "needs_history": true
+      },
+      "selected": "INV-1042",
+      "expect": {
+        "terminal": false,
+        "recordsExclude": [
+          "INV-0812"
+        ]
+      }
+    },
+    {
+      "id": "OFF-09",
+      "ac": "AC6",
+      "name": "Unknown invoice fails authorization without disclosing existence",
+      "authorize": "INV-9999",
+      "expect": {
+        "authorized": false
+      }
+    },
+    {
+      "id": "OFF-10",
+      "ac": "AC6",
+      "name": "Known invoice authorizes",
+      "authorize": "INV-1058",
+      "expect": {
+        "authorized": true
+      }
+    },
+    {
+      "id": "OFF-11",
+      "ac": "AC2",
+      "name": "No supporting records produces a decline, not an answer",
+      "intent": {
+        "intent": "factual",
+        "referenced_invoice_ids": [],
+        "implies_older_history": false,
+        "needs_history": false
+      },
+      "result": {
+        "status": "no_supporting_records",
+        "answer": "",
+        "citations": []
+      },
+      "expect": {
+        "state": "cannot_answer",
+        "noRetry": true
+      }
+    },
+    {
+      "id": "OFF-12",
+      "ac": "AC3",
+      "name": "No earlier invoice to compare against gets its own state",
+      "intent": {
+        "intent": "comparative",
+        "referenced_invoice_ids": [
+          "INV-1001"
+        ],
+        "implies_older_history": false,
+        "needs_history": true
+      },
+      "result": {
+        "status": "no_comparison_history",
+        "answer": "There is no earlier invoice to compare against.",
+        "citations": []
+      },
+      "expect": {
+        "state": "no_history"
+      }
+    },
+    {
+      "id": "OFF-13",
+      "ac": "Non-Goal",
+      "name": "Question implying older history gets the disclosure notice",
+      "intent": {
+        "intent": "comparative",
+        "referenced_invoice_ids": [],
+        "implies_older_history": true,
+        "needs_history": true
+      },
+      "result": {
+        "status": "ok",
+        "answer": "The total rose to $1,616.00.",
+        "citations": [
+          {
+            "invoice_id": "INV-1071",
+            "line_item": "Total",
+            "amount": "1616.00"
+          }
+        ]
+      },
+      "expect": {
+        "state": "answer",
+        "hasNotice": true
+      }
+    },
+    {
+      "id": "OFF-14",
+      "ac": "Non-Goal",
+      "name": "No disclosure notice when older history is not implied",
+      "intent": {
+        "intent": "factual",
+        "referenced_invoice_ids": [
+          "INV-1071"
+        ],
+        "implies_older_history": false,
+        "needs_history": false
+      },
+      "result": {
+        "status": "ok",
+        "answer": "The total is $1,616.00.",
+        "citations": [
+          {
+            "invoice_id": "INV-1071",
+            "line_item": "Total",
+            "amount": "1616.00"
+          }
+        ]
+      },
+      "expect": {
+        "state": "answer",
+        "hasNotice": false
+      }
+    },
+    {
+      "id": "OFF-15",
+      "ac": "AC1",
+      "name": "Groundedness check catches an uncited figure",
+      "groundedness": {
+        "answer": "The late fee was $27.00 and freight added $310.00.",
+        "citations": [
+          {
+            "invoice_id": "INV-1014",
+            "line_item": "Late fee",
+            "amount": "27.00"
+          }
+        ]
+      },
+      "expect": {
+        "uncited": [
+          "310.00"
+        ]
+      }
+    },
+    {
+      "id": "OFF-16",
+      "ac": "AC1",
+      "name": "Groundedness check passes when every figure is cited",
+      "groundedness": {
+        "answer": "The late fee was $27.00 and freight added $310.00.",
+        "citations": [
+          {
+            "invoice_id": "INV-1014",
+            "line_item": "Late fee",
+            "amount": "27.00"
+          },
+          {
+            "invoice_id": "INV-1014",
+            "line_item": "Freight",
+            "amount": "310.00"
+          }
+        ]
+      },
+      "expect": {
+        "uncited": []
+      }
+    },
+    {
+      "id": "OFF-17",
+      "ac": "AC1",
+      "name": "Figure formatting variations still match their citation",
+      "groundedness": {
+        "answer": "That comes to $1,616.00 in total.",
+        "citations": [
+          {
+            "invoice_id": "INV-1071",
+            "line_item": "Total",
+            "amount": "$1616.00"
+          }
+        ]
+      },
+      "expect": {
+        "uncited": []
+      }
+    },
+    {
+      "id": "OFF-18",
+      "ac": "AC1",
+      "name": "No test scaffolding in customer-visible invoice notes",
+      "fixtureHygiene": true,
+      "expect": {
+        "cleanNotes": true
+      }
+    },
+    {
+      "id": "OFF-19",
+      "ac": "AC6",
+      "name": "Merchant annotations are stripped before retrieval returns",
+      "entitlement": true,
+      "expect": {
+        "noInternalFields": true
+      }
+    },
+    {
+      "id": "OFF-20",
+      "ac": "AC13",
+      "name": "Payment offered unless the invoice itself is disputed, and never leads on a complaint",
+      "paymentOffer": true,
+      "expect": {
+        "correct": true
+      }
+    },
+    {
+      "id": "OFF-21",
+      "ac": "AC4",
+      "name": "Venting is not routed to the merchant",
+      "intent": {
+        "intent": "not_a_question",
+        "referenced_invoice_ids": [],
+        "implies_older_history": false,
+        "needs_history": false
+      },
+      "selected": "INV-1071",
+      "expect": {
+        "terminal": true,
+        "state": "not_a_question"
+      }
+    },
+    {
+      "id": "OFF-22",
+      "ac": "AC7",
+      "name": "No classification produces a clarify or pick-list state",
+      "noClarifyState": true,
+      "expect": {
+        "correct": true
+      }
+    },
+    {
+      "id": "OFF-23",
+      "ac": "AC10",
+      "name": "Asking to reach the merchant is routed, not brushed off",
+      "intent": {
+        "intent": "contact_request",
+        "referenced_invoice_ids": [],
+        "implies_older_history": false,
+        "needs_history": false
+      },
+      "selected": "INV-1071",
+      "expect": {
+        "terminal": true,
+        "state": "contact_request"
+      }
+    },
+    {
+      "id": "OFF-24",
+      "ac": "AC9",
+      "name": "No message mangles a merchant name ending in a full stop",
+      "copyHygiene": true,
+      "expect": {
+        "correct": true
+      }
+    }
+  ],
+  "online": [
+    {
+      "id": "ON-01",
+      "ac": "AC1",
+      "name": "Factual question about a named charge",
+      "question": "Why was I charged a late fee on INV-1014?",
+      "invoiceId": "INV-1014",
+      "expect": {
+        "state": "answer",
+        "minCitations": 1,
+        "allFiguresCited": true,
+        "noRawEscapes": true
+      }
+    },
+    {
+      "id": "ON-02",
+      "ac": "AC1",
+      "name": "Payment status question",
+      "question": "Has INV-1058 been paid?",
+      "invoiceId": "INV-1058",
+      "expect": {
+        "state": "answer",
+        "minCitations": 1,
+        "allFiguresCited": true,
+        "noRawEscapes": true
+      }
+    },
+    {
+      "id": "ON-03",
+      "ac": "AC1",
+      "name": "Comparative question cites more than one invoice",
+      "question": "Why is this invoice higher than last month's?",
+      "invoiceId": "INV-1042",
+      "expect": {
+        "state": "answer",
+        "minCitations": 2,
+        "allFiguresCited": true,
+        "minDistinctInvoices": 2,
+        "noRawEscapes": true
+      }
+    },
+    {
+      "id": "ON-04",
+      "ac": "AC4",
+      "name": "Refund request routes, never answers",
+      "question": "I never received the shipment for this invoice, I want a refund",
+      "invoiceId": "INV-1071",
+      "expect": {
+        "state": "dispute"
+      }
+    },
+    {
+      "id": "ON-05",
+      "ac": "AC4",
+      "name": "Dispute phrased as a question still routes",
+      "question": "Can you tell me why I'm being charged for something that never arrived? I'd like my money back.",
+      "invoiceId": "INV-1071",
+      "expect": {
+        "state": "dispute"
+      }
+    },
+    {
+      "id": "ON-06",
+      "ac": "AC4",
+      "name": "Chargeback language routes",
+      "question": "I'm going to raise this with my bank as a chargeback unless it's fixed",
+      "invoiceId": "INV-1085",
+      "expect": {
+        "state": "dispute"
+      }
+    },
+    {
+      "id": "ON-08",
+      "ac": "AC3",
+      "name": "No prior invoice to compare against",
+      "question": "Why is INV-1001 higher than the one before it?",
+      "invoiceId": "INV-1001",
+      "expect": {
+        "state": "no_history"
+      }
+    },
+    {
+      "id": "ON-09",
+      "ac": "Non-Goal",
+      "name": "Cross-merchant question is out of scope",
+      "question": "What's in my order from Acme Corp?",
+      "invoiceId": null,
+      "expect": {
+        "state": "out_of_scope"
+      }
+    },
+    {
+      "id": "ON-10",
+      "ac": "AC1 / AC2",
+      "name": "Cross-invoice comparison grounds or declines cleanly, never guesses",
+      "question": "Why is the freight on INV-1071 higher than on INV-1058?",
+      "invoiceId": "INV-1071",
+      "expect": {
+        "stateOneOf": [
+          "answer",
+          "cannot_answer"
+        ],
+        "allFiguresCited": true,
+        "noRawEscapes": true
+      }
+    },
+    {
+      "id": "ON-11",
+      "ac": "Non-Goal",
+      "name": "Question implying pre-window history answers with a disclosure",
+      "question": "Why is this more expensive than a year and a half ago?",
+      "invoiceId": "INV-1071",
+      "expect": {
+        "stateOneOf": [
+          "answer",
+          "cannot_answer"
+        ],
+        "hasNoticeIfAnswer": true,
+        "allFiguresCited": true,
+        "noRawEscapes": true
+      }
+    },
+    {
+      "id": "ON-12",
+      "ac": "AC6",
+      "name": "Unknown invoice returns the non-disclosing message",
+      "question": "What is this invoice for?",
+      "invoiceId": "INV-9999",
+      "expect": {
+        "state": "not_found"
+      }
+    },
+    {
+      "id": "ON-13",
+      "ac": "AC2",
+      "name": "Ungroundable question declines rather than guessing",
+      "question": "What discount will you give me next quarter?",
+      "invoiceId": "INV-1071",
+      "expect": {
+        "stateOneOf": [
+          "cannot_answer",
+          "out_of_scope"
+        ]
+      }
+    },
+    {
+      "id": "ON-14",
+      "ac": "AC11",
+      "name": "A composed message is sent and confirmed",
+      "route": {
+        "invoiceId": "INV-1071",
+        "message": "Could you explain the freight increase please?"
+      },
+      "expect": {
+        "routeOk": true
+      }
+    },
+    {
+      "id": "ON-15",
+      "ac": "AC11",
+      "name": "A failed handoff is NOT confirmed",
+      "route": {
+        "invoiceId": "INV-1071",
+        "message": "Could you explain the freight increase please?",
+        "simulateFailure": true
+      },
+      "expect": {
+        "routeOk": false
+      }
+    },
+    {
+      "id": "ON-17",
+      "ac": "AC12",
+      "name": "Nothing is sent without a message the customer wrote",
+      "route": {
+        "invoiceId": "INV-1071"
+      },
+      "expect": {
+        "routeOk": false
+      }
+    },
+    {
+      "id": "ON-18",
+      "ac": "AC5",
+      "name": "Operational failure is its own state, distinct from a decline",
+      "question": "Has INV-1058 been paid?",
+      "invoiceId": "INV-1058",
+      "simulateFailure": true,
+      "expect": {
+        "state": "error"
+      }
+    },
+    {
+      "id": "ON-19",
+      "ac": "AC10",
+      "name": "A question only the merchant can answer offers the handoff",
+      "question": "Will Ferro Supply Co. contact me to discuss INV-1085?",
+      "invoiceId": "INV-1085",
+      "expect": {
+        "stateOneOf": [
+          "answer",
+          "cannot_answer"
+        ],
+        "needsMerchant": true,
+        "allFiguresCited": true,
+        "noRawEscapes": true
+      }
+    },
+    {
+      "id": "ON-20",
+      "ac": "AC6",
+      "name": "An answer cannot quote a merchant's internal annotation",
+      "question": "What does the merchant say about this invoice?",
+      "invoiceId": "INV-1085",
+      "expect": {
+        "stateOneOf": [
+          "answer",
+          "cannot_answer"
+        ],
+        "answerExcludes": [
+          "claiming",
+          "flagged as disputed",
+          "contacted the merchant directly"
+        ]
+      }
+    },
+    {
+      "id": "ON-21",
+      "ac": "AC14",
+      "name": "The same handoff is not transmitted twice",
+      "routeTwice": {
+        "invoiceId": "INV-1029",
+        "message": "Could you check this for me?"
+      },
+      "expect": {
+        "firstOk": true,
+        "secondOk": false
+      }
+    },
+    {
+      "id": "ON-22",
+      "ac": "AC4",
+      "name": "Hostility is answered, not forwarded",
+      "question": "i hate ferro",
+      "invoiceId": "INV-1071",
+      "expect": {
+        "state": "not_a_question"
+      }
+    },
+    {
+      "id": "ON-23",
+      "ac": "AC4",
+      "name": "A greeting is not treated as a failed question",
+      "question": "hello",
+      "invoiceId": "INV-1071",
+      "expect": {
+        "state": "not_a_question"
+      }
+    },
+    {
+      "id": "ON-24",
+      "ac": "AC10",
+      "name": "A customer asking to contact the merchant before paying gets both routes",
+      "question": "i want to ask ferro a question before I pay?",
+      "invoiceId": "INV-1071",
+      "expect": {
+        "state": "contact_request"
+      }
+    }
+  ]
+}

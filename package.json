@@ -1,0 +1,22 @@
+{
+  "name": "invoice-qa-prototype",
+  "version": "1.0.0",
+  "description": "Prototype: grounded, self-service Q&A on a customer invoice. Built to the acceptance criteria in docs/invoice_qa_feature_spec.md.",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "eval": "node evals/run.js",
+    "eval:offline": "node evals/run.js --offline"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.68.0",
+    "dotenv": "^17.4.2",
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "jsdom": "^25.0.1"
+  }
+}

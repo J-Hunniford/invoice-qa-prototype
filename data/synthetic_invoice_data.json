@@ -1,0 +1,216 @@
+{
+  "merchant": {
+    "name": "Ferro Supply Co.",
+    "type": "Industrial parts distributor"
+  },
+  "customer": {
+    "name": "Marrow & Co.",
+    "type": "Commercial fit-out contractor",
+    "customer_since": "2025-06-01"
+  },
+  "invoices": [
+    {
+      "invoice_id": "INV-0812",
+      "issue_date": "2025-06-15",
+      "due_date": "2025-07-15",
+      "status": "paid",
+      "paid_date": "2025-07-10",
+      "line_items": [
+        {
+          "description": "Steel brackets, bulk order (x100)",
+          "amount": 400.0
+        },
+        {
+          "description": "Freight",
+          "amount": 45.0
+        }
+      ],
+      "subtotal": 445.0,
+      "fees": [],
+      "total": 445.0,
+      "internal_note": "Earliest invoice on the account. Predates the supplier price rise. Sits outside the 12-month retrieval window."
+    },
+    {
+      "invoice_id": "INV-1001",
+      "issue_date": "2026-01-20",
+      "due_date": "2026-02-19",
+      "status": "paid",
+      "paid_date": "2026-02-17",
+      "line_items": [
+        {
+          "description": "Steel brackets, bulk order (x200)",
+          "amount": 840.0
+        },
+        {
+          "description": "Freight",
+          "amount": 60.0
+        }
+      ],
+      "subtotal": 900.0,
+      "fees": [],
+      "total": 900.0,
+      "internal_note": "First invoice on this account, so nothing earlier exists to compare against."
+    },
+    {
+      "invoice_id": "INV-1014",
+      "issue_date": "2026-02-20",
+      "due_date": "2026-03-22",
+      "status": "paid",
+      "paid_date": "2026-03-25",
+      "line_items": [
+        {
+          "description": "Steel brackets, bulk order (x200)",
+          "amount": 840.0
+        },
+        {
+          "description": "Freight",
+          "amount": 60.0
+        }
+      ],
+      "subtotal": 900.0,
+      "fees": [
+        {
+          "description": "Late payment fee (paid 3 days past due)",
+          "amount": 27.0
+        }
+      ],
+      "total": 927.0,
+      "note": "Late payment fee applied: paid 3 days after the due date.",
+      "internal_note": "Same order as INV-1001. Exists to exercise a fee appearing on an otherwise unchanged invoice."
+    },
+    {
+      "invoice_id": "INV-1029",
+      "issue_date": "2026-03-20",
+      "due_date": "2026-04-19",
+      "status": "paid",
+      "paid_date": "2026-04-10",
+      "line_items": [
+        {
+          "description": "Steel brackets, bulk order (x200)",
+          "amount": 840.0
+        },
+        {
+          "description": "Freight",
+          "amount": 60.0
+        },
+        {
+          "description": "Anchor bolts, box of 500",
+          "amount": 145.0
+        }
+      ],
+      "subtotal": 1045.0,
+      "fees": [],
+      "total": 1045.0,
+      "note": "Anchor bolts added to this order at the customer's request.",
+      "internal_note": "Extra line item not present on prior invoices."
+    },
+    {
+      "invoice_id": "INV-1042",
+      "issue_date": "2026-04-20",
+      "due_date": "2026-05-20",
+      "status": "paid",
+      "paid_date": "2026-05-18",
+      "line_items": [
+        {
+          "description": "Steel brackets, bulk order (x200)",
+          "amount": 924.0
+        },
+        {
+          "description": "Freight",
+          "amount": 60.0
+        }
+      ],
+      "subtotal": 984.0,
+      "fees": [],
+      "total": 984.0,
+      "note": "Steel bracket unit price increased from 4.20 to 4.62 (10% supplier price rise), effective this invoice.",
+      "internal_note": "First invoice carrying the price rise."
+    },
+    {
+      "invoice_id": "INV-1058",
+      "issue_date": "2026-05-20",
+      "due_date": "2026-06-19",
+      "status": "paid",
+      "paid_date": "2026-06-19",
+      "line_items": [
+        {
+          "description": "Steel brackets, bulk order (x200)",
+          "amount": 924.0
+        },
+        {
+          "description": "Freight",
+          "amount": 60.0
+        }
+      ],
+      "subtotal": 984.0,
+      "fees": [],
+      "total": 984.0,
+      "internal_note": "Unchanged from the prior month. Paid on the due date exactly."
+    },
+    {
+      "invoice_id": "INV-1071",
+      "issue_date": "2026-06-20",
+      "due_date": "2026-07-20",
+      "status": "open",
+      "paid_date": null,
+      "line_items": [
+        {
+          "description": "Steel brackets, bulk order (x300)",
+          "amount": 1386.0
+        },
+        {
+          "description": "Freight",
+          "amount": 85.0
+        },
+        {
+          "description": "Anchor bolts, box of 500",
+          "amount": 145.0
+        }
+      ],
+      "subtotal": 1616.0,
+      "fees": [],
+      "total": 1616.0,
+      "note": "Order increased to 300 brackets; freight adjusted accordingly.",
+      "internal_note": "Larger order than usual. Outstanding and past due."
+    },
+    {
+      "invoice_id": "INV-1085",
+      "issue_date": "2026-07-20",
+      "due_date": "2026-08-19",
+      "status": "open",
+      "paid_date": null,
+      "line_items": [
+        {
+          "description": "Steel brackets, bulk order (x200)",
+          "amount": 924.0
+        },
+        {
+          "description": "Freight",
+          "amount": 60.0
+        }
+      ],
+      "subtotal": 984.0,
+      "fees": [],
+      "total": 984.0,
+      "internal_note": "Customer contacted us directly claiming this shipment was never received. Held open pending the depot check.",
+      "disputed": true
+    }
+  ],
+  "query_time": "2026-08-04",
+  "test_questions": [
+    "Why is this invoice higher than last month's?",
+    "Has this been paid?",
+    "Why was I charged a late fee?",
+    "I never received this shipment, I want a refund",
+    "Why did this go up?",
+    "Why is this higher than the one before it?",
+    "What's in my order from Acme Corp?",
+    "Why is the freight higher than on INV-1058?",
+    "Why is this more expensive than a year and a half ago?"
+  ],
+  "test_notes": {
+    "history_window_boundary": "INV-0812 (2025-06-15) sits outside the 12-month retrieval window as of query_time 2026-08-04. Question 9, asked on INV-1071, should disclose that the older history is out of scope rather than answer silently against INV-0812 or silently omit it.",
+    "partial_retrieval": "Question 8, asked on INV-1071, exercises the partial-retrieval path. If both freight records are retrievable it grounds per AC1. If one is unavailable, the spec's Edge Cases require an AC2 decline rather than a partial answer with a guessed comparison.",
+    "vague_reference": "Question 5 ('Why did this go up?') names nothing. Asked inside an invoice it grounds against that invoice per AC1. Open INV-1071 for a comparison it can make, or INV-1042 for one where the answer is that nothing went up."
+  }
+}

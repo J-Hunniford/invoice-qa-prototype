@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Invoice Q&amp;A — Prototype</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="portal">
+      <header class="portal-header">
+        <span class="proto-badge">Prototype</span>
+        <div class="merchant">
+          <div class="merchant-name" id="merchant-name">&nbsp;</div>
+          <div class="merchant-meta" id="merchant-meta">&nbsp;</div>
+        </div>
+      </header>
+
+      <nav class="tiles">
+        <a class="tile tile-invoices is-active" href="#">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2h9l5 5v15H6z"/><path d="M15 2v5h5"/><path d="M9 13h7M9 17h7"/></svg>
+          <span>Invoices</span>
+        </a>
+        <a class="tile tile-history" href="#">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 5v4h4"/><path d="M12 8v5l3 2"/></svg>
+          <span>History</span>
+        </a>
+        <a class="tile tile-profile" href="#">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="9" cy="11" r="2.2"/><path d="M5.5 17c.6-1.8 2-2.6 3.5-2.6s2.9.8 3.5 2.6M15.5 10h4M15.5 14h4"/></svg>
+          <span>Profile</span>
+        </a>
+        <a class="tile tile-vault" href="#">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+          <span>Vault</span>
+        </a>
+      </nav>
+
+      <div class="main-row">
+        <section class="panel">
+          <div class="panel-head">
+            <span class="panel-title">Invoices</span>
+          </div>
+          <div class="panel-body">
+            <label class="field-label" for="search">Search Invoices</label>
+            <input id="search" type="search" placeholder="Search by Invoice Number" autocomplete="off" />
+
+            <div class="table-scroll">
+              <table class="grid">
+                <thead>
+                  <tr>
+                    <th>Inv No.</th>
+                    <th>Display Name</th>
+                    <th>Created</th>
+                    <th>Due</th>
+                    <th class="num">Balance</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="invoice-rows"></tbody>
+              </table>
+            </div>
+
+            <div class="pager">
+              <div class="pages">
+                <span class="pg">&laquo;</span><span class="pg">&lsaquo;</span>
+                <span class="pg is-on">1</span>
+                <span class="pg">&rsaquo;</span><span class="pg">&raquo;</span>
+              </div>
+              <span class="records" id="record-count"></span>
+            </div>
+          </div>
+        </section>
+
+        <aside class="panel side">
+          <div class="panel-head">
+            <span class="panel-title">Payment Method</span>
+          </div>
+          <div class="panel-body">
+            <label class="field-label">Payment Method</label>
+            <select class="wide-select" disabled>
+              <option>Ends in 1111</option>
+            </select>
+            <div class="linky">+ New card</div>
+            <div class="linky">+ New ACH account</div>
+
+            <label class="field-label mt">Balance due</label>
+            <div class="money-field"><span>$</span><input id="side-balance" value="0.00" readonly /></div>
+
+            <button class="btn-pay" id="pay-invoice">Pay Invoice</button>
+            <p class="side-note" id="side-note">
+              Payment is out of scope for this prototype.
+            </p>
+          </div>
+        </aside>
+      </div>
+
+
+      <footer class="portal-footer">
+        <span class="dim">Concept prototype — not affiliated with or endorsed by any invoicing product.</span>
+      </footer>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>

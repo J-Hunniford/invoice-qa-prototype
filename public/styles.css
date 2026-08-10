@@ -1,0 +1,827 @@
+/* Neutral wireframe styling. The information architecture is the point;
+   the visual skin is intentionally generic. Semantic state colours
+   (answer / decline / error) stay distinct — AC5. */
+
+:root {
+  --bg: #eef0f3;
+  --surface: #ffffff;
+  --ink: #1f2328;
+  --muted: #6a737d;
+  --line: #d0d7de;
+  --panel-head: #f6f8fa;
+  --row-selected: #eef1f4;
+
+  --accent: #4b5563;
+  --accent-dark: #374151;
+  --link: #4b5563;
+
+  --answer-ink: #4d7c4d;
+  --answer-bg:  #f2f6f2;
+  --answer-line:#cfe0cf;
+
+  --decline-ink: #8a6d3b;
+  --decline-bg:  #faf6ec;
+  --decline-line:#e8dcbc;
+
+  --error-ink: #a94442;
+  --error-bg:  #faf0f0;
+  --error-line:#ecd0cf;
+
+  --sys: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 14px/1.5 var(--sys);
+}
+
+.portal {
+  max-width: 1180px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: var(--surface);
+  padding: 26px 34px 40px;
+}
+
+/* --- header ------------------------------------------------------------- */
+
+.portal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--line);
+}
+
+.proto-badge {
+  align-self: center;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 3px 11px;
+  font-size: 11px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.merchant { text-align: right; }
+.merchant-name { font-size: 24px; font-weight: 600; letter-spacing: -.01em; }
+.merchant-meta { font-size: 14px; color: var(--muted); margin-top: 2px; }
+
+/* --- section tabs (was: coloured tiles) --------------------------------- */
+
+.tiles {
+  display: flex;
+  gap: 4px;
+  margin: 22px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.tile {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--muted);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+.tile:hover { color: var(--ink); }
+.tile.is-active {
+  color: var(--ink);
+  border-bottom-color: var(--accent);
+}
+.tile svg {
+  width: 18px; height: 18px; flex: none;
+  fill: none; stroke: currentColor; stroke-width: 1.6;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+
+/* --- panels ------------------------------------------------------------- */
+
+.main-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 18px;
+  align-items: start;
+}
+
+.panel {
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--surface);
+}
+
+.panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 14px;
+  background: var(--panel-head);
+  border-bottom: 1px solid var(--line);
+}
+
+.panel-title { font-size: 15px; font-weight: 600; }
+
+.panel-body { padding: 16px; }
+
+.field-label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+.field-label.mt { margin-top: 18px; }
+
+#search, .wide-select {
+  width: 100%;
+  padding: 8px 11px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  font: inherit;
+  color: inherit;
+  background: var(--surface);
+}
+#search:focus, #question:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+/* --- data grid ---------------------------------------------------------- */
+
+.table-scroll { overflow-x: auto; }
+
+table.grid { width: 100%; border-collapse: collapse; font-size: 13px; }
+
+table.grid th {
+  text-align: left;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  white-space: nowrap;
+  background: var(--panel-head);
+}
+table.grid th.num { text-align: right; }
+table.grid th::after {
+  content: "⇅";
+  float: right;
+  margin-left: 10px;
+  color: #b9b9b9;
+  font-size: 11px;
+}
+table.grid th:empty::after { content: ""; }
+
+table.grid td {
+  padding: 11px 12px;
+  border: 1px solid var(--line);
+  vertical-align: middle;
+}
+table.grid td.num { text-align: right; font-variant-numeric: tabular-nums; }
+table.grid tr.is-selected td { background: var(--row-selected); }
+
+.inv-link {
+  color: var(--link);
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.inv-link:hover { color: var(--accent-dark); }
+
+.late { color: var(--error-ink); }
+.disputed { color: var(--error-ink); font-weight: 600; }
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 14px;
+}
+.pages { display: flex; gap: 4px; }
+.pg {
+  min-width: 32px;
+  text-align: center;
+  padding: 5px 8px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.pg.is-on { background: var(--accent); border-color: var(--accent); color: #fff; }
+.records {
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  padding: 5px 12px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* --- payment sidebar ---------------------------------------------------- */
+
+.side .linky { color: var(--accent); font-size: 13px; margin-top: 8px; }
+
+.money-field { display: flex; border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
+.money-field span {
+  padding: 8px 11px;
+  background: var(--panel-head);
+  border-right: 1px solid var(--line);
+  color: var(--muted);
+}
+.money-field input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  padding: 8px 11px;
+  font: inherit;
+  background: #fafafa;
+  color: var(--muted);
+  text-align: right;
+}
+
+.btn-pay {
+  width: 100%;
+  margin-top: 16px;
+  padding: 10px;
+  border: 0;
+  border-radius: 4px;
+  background: var(--accent);
+  color: #fff;
+  font: inherit;
+  font-size: 14px;
+  opacity: .5;
+}
+.side-note { margin: 10px 0 0; font-size: 11.5px; color: var(--muted); line-height: 1.45; }
+
+/* --- Q&A ---------------------------------------------------------------- */
+
+.ask-row { display: flex; gap: 8px; }
+#question {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  font: inherit;
+  font-size: 14.5px;
+}
+#ask-button {
+  background: var(--accent);
+  color: #fff;
+  border: 0;
+  border-radius: 4px;
+  padding: 10px 24px;
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+#ask-button:hover { background: var(--accent-dark); }
+#ask-button:disabled { opacity: .55; cursor: default; }
+
+/* AC9 — persistent, non-dismissible. */
+.disclosure {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 12px 0 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--muted);
+  max-width: 82ch;
+}
+.disclosure svg {
+  width: 22px; height: 22px; flex: none; margin-top: 1px;
+  fill: none; stroke: var(--accent); stroke-width: 1.5;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+.disclosure b { font-weight: 600; color: var(--ink); }
+
+/* Result states — AC1 / AC2 / AC5 must remain visually distinct. */
+
+.result {
+  margin-top: 16px;
+  border: 1px solid var(--line);
+  border-left-width: 4px;
+  border-radius: 4px;
+  padding: 14px 16px;
+}
+.state-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.state-label svg {
+  width: 17px; height: 17px; flex: none;
+  fill: none; stroke: currentColor; stroke-width: 1.6;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+.result p { margin: 0; font-size: 14.5px; }
+
+.result.answer { background: var(--answer-bg); border-color: var(--answer-line); border-left-color: var(--answer-ink); }
+.result.answer .state-label { color: var(--answer-ink); }
+
+.result.cannot_answer, .result.no_history, .result.out_of_scope,
+.result.not_found, .result.dispute {
+  background: var(--decline-bg); border-color: var(--decline-line); border-left-color: var(--decline-ink);
+}
+.result.cannot_answer .state-label, .result.no_history .state-label,
+.result.out_of_scope .state-label, .result.not_found .state-label,
+.result.dispute .state-label { color: var(--decline-ink); }
+
+.result.error { background: var(--error-bg); border-color: var(--error-line); border-left-color: var(--error-ink); }
+.result.error .state-label { color: var(--error-ink); }
+
+.result.config { background: #fafafa; border-left-color: var(--muted); }
+.result.config .state-label { color: var(--muted); }
+
+.citations { margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(0,0,0,.09); }
+.citations h3 {
+  margin: 0 0 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.citations ul { margin: 0; padding-left: 18px; }
+.citations li { font-size: 13px; }
+
+.notice {
+  margin-top: 10px; padding-top: 10px;
+  border-top: 1px solid rgba(0,0,0,.09);
+  font-size: 13px; color: var(--muted);
+}
+
+.actions { margin-top: 12px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.btn-retry {
+  background: var(--error-ink); color: #fff; border: 0;
+  border-radius: 4px; padding: 7px 18px; font: inherit; cursor: pointer;
+}
+.support { font-size: 13px; color: var(--muted); }
+
+.btn-route {
+  background: var(--surface);
+  border: 1px solid var(--accent);
+  color: var(--accent-dark);
+  border-radius: 4px;
+  padding: 8px 16px;
+  font: inherit;
+  font-size: 13.5px;
+  cursor: pointer;
+}
+.btn-route:hover { background: var(--accent); color: #fff; }
+.btn-route:disabled { opacity: .5; cursor: default; }
+.routed { font-size: 13px; color: var(--answer-ink); }
+.sent-count { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+.detail-sent > div + div, .handoff > div > div + div { margin-top: 10px; }
+
+.thinking { color: var(--muted); font-size: 14px; margin-top: 16px; }
+
+/* --- footer ------------------------------------------------------------- */
+
+.portal-footer {
+  display: flex; justify-content: flex-end; gap: 16px; flex-wrap: wrap;
+  margin-top: 26px; padding-top: 14px;
+  border-top: 1px solid var(--line);
+  font-size: 11.5px; color: var(--muted);
+}
+.portal-footer .dim { color: #a8adaf; }
+
+@media (max-width: 900px) {
+  .portal { padding: 20px 16px 32px; }
+  .tiles { flex-wrap: wrap; }
+  .main-row { grid-template-columns: 1fr; }
+  .merchant-name { font-size: 20px; }
+}
+
+/* --- waiting state ------------------------------------------------------- */
+
+/* The answer takes several seconds. Anything subtle here reads as a broken
+   page, so this is deliberately the most prominent thing in the panel while
+   it runs. */
+.thinking {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 16px;
+  padding: 20px 22px;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--ink);
+  border-radius: 4px;
+  background: var(--surface);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .07);
+  color: var(--ink);
+  font-size: 15.5px;
+  font-weight: 500;
+}
+.thinking::before {
+  content: "";
+  width: 22px;
+  height: 22px;
+  flex: none;
+  border: 3px solid #d8dde3;
+  border-top-color: var(--ink);
+  border-radius: 50%;
+  animation: spin 0.65s linear infinite;
+}
+.thinking::after {
+  content: "";
+  margin-left: auto;
+  width: 84px;
+  height: 4px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--ink) 0 40%, #e4e8ec 40% 100%)
+    0 0 / 250% 100% no-repeat;
+  animation: sweep 1.4s ease-in-out infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes sweep {
+  0%   { background-position: 100% 0; }
+  100% { background-position: -60% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .thinking::before { animation: none; border-top-color: #d8dde3; }
+  .thinking::after { animation: none; background: #e4e8ec; }
+}
+
+/* --- handoff to a person (AC4 / AC10 / AC11) ----------------------------- */
+
+/* Nothing here sends anything until the customer picks an option, and the
+   question they asked the assistant is never among what gets sent. */
+.handoff {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(0, 0, 0, .09);
+}
+.handoff-intro { margin: 0 0 10px; font-size: 13.5px; }
+.handoff-note {
+  margin: 8px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.handoff-status:empty { display: none; }
+.handoff-status { margin: 10px 0 0; }
+
+.handoff-box {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  font: inherit;
+  font-size: 14px;
+  resize: vertical;
+}
+.handoff-box:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.btn-route-quiet {
+  border-color: var(--line);
+  color: var(--muted);
+}
+.btn-route-quiet:hover {
+  background: var(--panel-head);
+  border-color: var(--accent);
+  color: var(--ink);
+}
+
+/* --- opened invoice ------------------------------------------------------ */
+
+/* The spec places the Q&A inside the invoice view, so opening an invoice is
+   what puts the panel in its intended context rather than hanging it under a
+   list. */
+.detail-row td {
+  padding: 0;
+  border: 1px solid var(--line);
+  border-top: 0;
+  background: var(--panel-head);
+}
+
+.invoice-detail { padding: 16px 18px 14px; }
+
+.detail-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+}
+.detail-id { font-size: 15px; font-weight: 600; }
+.detail-dates { font-size: 12.5px; color: var(--muted); }
+
+table.detail-lines {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  font-size: 13px;
+}
+table.detail-lines td {
+  padding: 7px 0;
+  border: 0;
+  border-bottom: 1px solid rgba(0, 0, 0, .05);
+  background: none;
+}
+table.detail-lines td.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.detail-sub td { color: var(--muted); }
+.detail-fee td { color: var(--decline-ink); }
+.detail-total td {
+  font-weight: 600;
+  border-bottom: 0;
+  border-top: 1px solid var(--line);
+  padding-top: 9px;
+}
+
+.detail-note {
+  margin: 12px 0 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--muted);
+  max-width: 78ch;
+}
+
+/* Citation markers, pointing into the numbered Sources list. Small enough to
+   stay out of the sentence's way, dark enough to be followed deliberately. */
+.cite-marker {
+  display: inline-block;
+  margin-left: 2px;
+  padding: 0 4px;
+  border-radius: 3px;
+  background: var(--panel-head);
+  border: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 10.5px;
+  font-weight: 600;
+  line-height: 1.5;
+  vertical-align: super;
+}
+
+.citations ol {
+  margin: 0;
+  padding-left: 20px;
+  font-variant-numeric: tabular-nums;
+}
+.citations ol li {
+  font-size: 13px;
+  padding-left: 2px;
+}
+
+/* --- pay, where paying settles it ---------------------------------------- */
+
+.pay-action { margin-top: 14px; align-items: center; }
+
+.btn-pay-now {
+  background: var(--ink);
+  color: #fff;
+  border: 0;
+  border-radius: 4px;
+  padding: 10px 20px;
+  font: inherit;
+  font-size: 14.5px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.btn-pay-now:hover { background: #000; }
+
+/* The handoff sits below payment and reads as the quieter option. */
+.pay-action + .handoff { margin-top: 12px; }
+.pay-action + .handoff .handoff-intro { color: var(--muted); }
+
+/* An unpaid invoice is open: the payment route is live and visible, because
+   getting the invoice paid is the point of the feature. */
+.side-ready {
+  border-color: var(--accent);
+}
+.side-ready .panel-head {
+  background: var(--accent);
+  color: #fff;
+  border-bottom-color: var(--accent);
+}
+.side-ready .btn-pay {
+  background: var(--ink);
+  opacity: 1;
+  cursor: pointer;
+}
+.side-ready .btn-pay:hover { background: #000; }
+
+/* Sent here from the answer panel: draw the eye, once. */
+.side-called { animation: side-called 1.5s ease-out 1; }
+@keyframes side-called {
+  0%   { box-shadow: 0 0 0 0 rgba(75, 85, 99, .45); }
+  35%  { box-shadow: 0 0 0 8px rgba(75, 85, 99, .18); }
+  100% { box-shadow: 0 0 0 0 rgba(75, 85, 99, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .side-called { animation: none; box-shadow: 0 0 0 3px rgba(75, 85, 99, .35); }
+}
+
+}
+
+/* What is about to be sent, shown before it goes. Nothing reaches the merchant
+   without the customer seeing it here first. */
+.handoff-confirm {
+  margin: 10px 0 0;
+  padding: 10px 14px;
+  border-left: 3px solid var(--accent);
+  background: var(--surface);
+  border-radius: 0 4px 4px 0;
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+/* What was sent, available to re-read afterwards. */
+.sent-detail { margin-top: 8px; }
+.sent-detail summary {
+  cursor: pointer;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+.sent-detail summary:hover { color: var(--ink); }
+.sent-record {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 6px 14px;
+  margin: 10px 0 0;
+  padding: 12px 14px;
+  border-left: 3px solid var(--line);
+  background: var(--panel-head);
+  border-radius: 0 4px 4px 0;
+  font-size: 13px;
+}
+.sent-record dt {
+  color: var(--muted);
+  font-size: 11.5px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  padding-top: 2px;
+}
+.sent-record dd { margin: 0; }
+.sent-message { white-space: pre-wrap; line-height: 1.5; }
+.detail-sent {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+
+/* --- the Q&A, inside the open invoice ------------------------------------ */
+
+/* Scoped to the invoice rather than sitting in its own panel, so there is
+   never a question about which invoice a question is about. */
+.ask-panel {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+.ask-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.ask-head svg {
+  width: 17px; height: 17px; flex: none;
+  fill: none; stroke: currentColor; stroke-width: 1.5;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+
+.ask-form .ask-row { display: flex; gap: 8px; }
+.ask-form input[type="text"] {
+  flex: 1;
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  font: inherit;
+  font-size: 14px;
+  background: var(--surface);
+}
+.ask-form input[type="text"]:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.ask-button {
+  background: var(--accent);
+  color: #fff;
+  border: 0;
+  border-radius: 4px;
+  padding: 9px 22px;
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+.ask-button:hover { background: var(--accent-dark); }
+.ask-button:disabled { opacity: .55; cursor: default; }
+
+/* Fenced off from the product surface. Everything else on this page is the
+   feature; this is not, and should never be read as it. */
+.test-hook {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+  padding: 8px 12px;
+  border: 1px dashed #c9ced0;
+  border-radius: 4px;
+  background: repeating-linear-gradient(
+    45deg, transparent, transparent 6px, rgba(0,0,0,.014) 6px, rgba(0,0,0,.014) 12px
+  );
+}
+.test-hook-label {
+  font-size: 10.5px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.test-hook button {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  padding: 3px 10px;
+  font: inherit;
+  font-size: 12px;
+  color: var(--muted);
+  cursor: pointer;
+}
+.test-hook button:hover { border-color: var(--accent); color: var(--ink); }
+
+/* An unsent message, waiting where it was left. */
+.draft-resume {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  padding: 10px 14px;
+  border: 1px dashed var(--line);
+  border-radius: 4px;
+  background: var(--panel-head);
+}
+.draft-resume p { margin: 0; }
+
+/* Settling is still available on a dispute-shaped question, but it follows the
+   complaint rather than shouting over it. */
+.pay-action-quiet { margin-top: 12px; }
+.btn-pay-now.btn-pay-quiet {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  font-weight: 400;
+}
+.btn-pay-now.btn-pay-quiet:hover { border-color: var(--accent); background: var(--panel-head); }
+
+/* A contested invoice is still outstanding. The contest sits beside the ageing
+   status rather than replacing it, because it is an additional fact about the
+   invoice rather than a value of its status. */
+.tag-disputed {
+  display: inline-block;
+  padding: 1px 7px;
+  border: 1px solid var(--error-line);
+  border-radius: 10px;
+  background: var(--error-bg);
+  color: var(--error-ink);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: .03em;
+  white-space: nowrap;
+}
+
+/* How late an invoice is, beside its status rather than instead of it. */
+.tag-late {
+  display: inline-block;
+  padding: 1px 7px;
+  border: 1px solid var(--decline-line);
+  border-radius: 10px;
+  background: var(--decline-bg);
+  color: var(--decline-ink);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: .03em;
+  white-space: nowrap;
+}
+
+/* What was asked, above what came back. Subordinate to the answer: it is
+   context, not content. */
+.asked {
+  margin: 0 0 10px;
+  padding-left: 10px;
+  border-left: 2px solid var(--line);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
