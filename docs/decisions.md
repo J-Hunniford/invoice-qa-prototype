@@ -1,6 +1,6 @@
 # What changed, and why
 
-The spec was drafted and validated first. The prototype was built to that spec, and building it changed the spec eleven times.
+The spec was drafted and validated first. The prototype was built to that spec, and building it changed the spec fourteen times.
 
 Reviewing a document catches requirements that can't be tested. Building the feature catches requirements that are wrong: a criterion that reads cleanly on the page but tells a customer something untrue, or leaves an invoice unpaid that could have been settled in a click.
 

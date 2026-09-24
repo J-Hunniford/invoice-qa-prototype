@@ -4,17 +4,17 @@ A working prototype of a self-service Q&A feature for a customer-facing invoice 
 
 The point is getting the invoice paid. People don't pay invoices they don't understand. Some will ask the merchant and wait; more mean to ask and never do, so the invoice ages on a question nobody ever heard. This answers it while they're still looking at the invoice, from their own records, and then offers the two things that move it forward: pay now, or write to the merchant about whatever the records can't settle.
 
-Invoices are the setting, but the shape is general: open-ended questions, answers bounded by records the organisation already holds.
+Invoices are the setting, but the shape is general: open-ended questions asked by end users, and answers bounded by records the organisation already holds.
 
-Built against the spec in [`docs/invoice_qa_feature_spec.md`](docs/invoice_qa_feature_spec.md). The spec came first; the prototype implements it. The table below maps each acceptance criterion to where it lives in the code and the question that exercises it.
+The prototype and the spec in [`docs/invoice_qa_feature_spec.md`](docs/invoice_qa_feature_spec.md) were built against each other, and both changed in the process. The table below maps each acceptance criterion to where it lives in the code and the question that exercises it.
 
 ---
 
-## What this is
+## Why this repo exists
 
 This is a proof of concept rather than a product. The data is entirely fictional and fixed. The prototype was built with Claude Code to explore how a draft spec and a prototype develop against each other in AI-driven development: the spec was drafted first, building against it tested the requirements, and the issues it exposed went back into the spec.
 
-The point of this approach is the early surfacing and addressing of problems. Working this way puts something running in front of customers, product architects, and engineering leads while the spec is still a draft, so the ambiguity and the gotchas come out there. What reaches engineering is a spec whose issues have already been explored and resolved. The alternative is finding them mid-sprint, after engineering has committed to a date.
+Working this way puts something running in front of customers, product architects, and engineering leads while the spec is still a draft, so the ambiguity and the gotchas come out there. What reaches engineering is a spec whose issues have already been explored and resolved. The alternative is finding them mid-sprint, after engineering has committed to a date.
 
 ## Evaluate the prototype
 
@@ -26,7 +26,7 @@ Retrieval is a filter over a fixed dataset, not an index. See [What's stubbed, a
 
 ## Run it
 
-**Prerequisites:** Node 18+ and an Anthropic API key ([console.anthropic.com](https://console.anthropic.com/settings/keys)). A full evaluation session costs a few cents.
+**Prerequisites for running the app:** Node 18+ and an Anthropic API key ([console.anthropic.com](https://console.anthropic.com/settings/keys)). The offline evals above need neither. A full evaluation session costs a few cents.
 
 ```bash
 npm install
@@ -137,9 +137,9 @@ The spec was drafted, then run through a multi-agent validation workflow built i
 
 It looks for requirements that read as clear but can't be tested. Here it found three criteria resting on the word "confidently" with nothing checkable behind it, no citation format on the claim that mattered most, no separation between "I can't answer" and "the system is down", and no authorization behaviour at all. Each became a criterion you can write a test against. That is why the table above points at `evals/cases.json` and not at a reviewer's opinion.
 
-**Building the prototype to that spec then changed the spec eleven times.** Reviewing a document catches requirements that can't be tested. Building the feature catches requirements that are wrong. AC4 said to tell the customer their dispute had been routed to the merchant, when nothing had been sent anywhere: a developer would have built exactly that, and every customer raising a dispute would have been told something untrue.
+**Building the prototype to that spec then changed the spec fourteen times.** Reviewing a document catches requirements that can't be tested. Building the feature catches requirements that are wrong. AC4 said to tell the customer their dispute had been routed to the merchant, when nothing had been sent anywhere: a developer would have built exactly that, and every customer raising a dispute would have been told something untrue.
 
-Requirements defects, not coding defects, and cheaper to find here than after engineering has built to them. It doesn't finish the job; the spec still has open questions needing customer research, architecture and legal. The eleven changes are in [`docs/decisions.md`](docs/decisions.md).
+Requirements defects, not coding defects, and cheaper to find here than after engineering has built to them. It doesn't finish the job; the spec still has open questions needing customer research, architecture and legal. The fourteen changes are in [`docs/decisions.md`](docs/decisions.md).
 
 The validators live in [`pm-spec-workflow`](https://github.com/J-Hunniford/pm-spec-workflow) (private repo).
 
