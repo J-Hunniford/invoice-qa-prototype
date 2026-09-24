@@ -10,6 +10,20 @@ Built against the spec in [`docs/invoice_qa_feature_spec.md`](docs/invoice_qa_fe
 
 ---
 
+## What this is
+
+This is a proof of concept rather than a product. The data is entirely fictional and fixed. The prototype was built with Claude Code to explore how a draft spec and a prototype develop against each other in AI-driven development: the spec was drafted first, building against it tested the requirements, and the issues it exposed went back into the spec.
+
+The point of this approach is the early surfacing and addressing of problems. Working this way puts something running in front of customers, product architects, and engineering leads while the spec is still a draft, so the ambiguity and the gotchas come out there. What reaches engineering is a spec whose issues have already been explored and resolved. The alternative is finding them mid-sprint, after engineering has committed to a date.
+
+## Evaluate the prototype
+
+`npm install && npm run eval:offline` runs 33 deterministic checks against the routing and guardrails in a few seconds, with no API key. A further 22 exercise model behaviour and need a key. Each names the acceptance criterion it exercises. If the guardrails don't hold, that is where it shows.
+
+Retrieval is a filter over a fixed dataset, not an index. See [What's stubbed, and what's real](#whats-stubbed-and-whats-real).
+
+---
+
 ## Run it
 
 **Prerequisites:** Node 18+ and an Anthropic API key ([console.anthropic.com](https://console.anthropic.com/settings/keys)). A full evaluation session costs a few cents.
