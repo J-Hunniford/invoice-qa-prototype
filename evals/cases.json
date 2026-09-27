@@ -319,6 +319,44 @@
       "expect": {
         "correct": true
       }
+    },
+    {
+      "id": "OFF-25",
+      "ac": "Technical Constraints",
+      "name": "Naming an invoice does not bypass the window",
+      "intent": {
+        "intent": "factual",
+        "referenced_invoice_ids": [
+          "INV-0812"
+        ],
+        "implies_older_history": false,
+        "needs_history": false
+      },
+      "selected": "INV-1071",
+      "expect": {
+        "terminal": false,
+        "recordsExclude": [
+          "INV-0812"
+        ]
+      }
+    },
+    {
+      "id": "OFF-26",
+      "ac": "Technical Constraints",
+      "name": "The invoice in view is retrieved whatever its age",
+      "intent": {
+        "intent": "comparative",
+        "referenced_invoice_ids": [],
+        "implies_older_history": true,
+        "needs_history": true
+      },
+      "selected": "INV-0812",
+      "expect": {
+        "terminal": false,
+        "recordsInclude": [
+          "INV-0812"
+        ]
+      }
     }
   ],
   "online": [

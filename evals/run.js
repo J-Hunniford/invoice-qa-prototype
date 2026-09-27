@@ -301,6 +301,14 @@ function runOffline() {
             detail = `out-of-window record(s) retrieved: ${leaked}`;
           }
         }
+        if (ok && c.expect.recordsInclude) {
+          const ids = pre.records.map((r) => r.invoice_id);
+          const missing = c.expect.recordsInclude.filter((x) => !ids.includes(x));
+          if (missing.length) {
+            ok = false;
+            detail = `record(s) not retrieved: ${missing}`;
+          }
+        }
         record(c.id, c.ac, c.name, ok, detail);
         continue;
       }

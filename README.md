@@ -122,7 +122,7 @@ It helps to push where the system has to make a judgement call:
 | **AC12** | Nothing sent without a choice | `app.js` → nothing fires without a click | ON-17, DOM-07 |
 | **AC13** | Pay offered on unpaid invoices | `lib/core.js` → `offersPayment()`, `paymentIsPrimary()` | OFF-20, DOM-09, DOM-12 |
 | **AC14** | Confirm before sending, never twice | `server.js` → dedupe guard; `app.js` → `confirmStep()`, `sentList()` | ON-21, DOM-01, DOM-02, DOM-07 |
-| Non-Goal | 12-month history window | `lib/core.js` → `windowCutoff()` | INV-1071 by hand; OFF-08 |
+| Non-Goal | 12-month history window | `lib/core.js` → `windowCutoff()`, `decidePreAnswer()` | INV-1071 by hand; OFF-08, OFF-25, OFF-26 |
 | Non-Goal | Other merchants out of scope | `lib/core.js` → `decidePreAnswer()` | Any invoice by hand |
 | Edge case | Partial data means a decline | `answer()` system prompt, rule 3 | ON-25 withholds one of the two invoices from the model. It currently fails: the model compares with a different invoice instead of declining |
 
@@ -130,14 +130,14 @@ It helps to push where the system has to make a judgement call:
 
 ## Evals
 
-The evals are 56 cases, each pairing a question or situation with what an acceptable response looks like. Because the model's wording varies from run to run, they check properties of a response, such as whether every figure is cited, not its exact text. There are two sets.
+The evals are 58 cases, each pairing a question or situation with what an acceptable response looks like. Because the model's wording varies from run to run, they check properties of a response, such as whether every figure is cited, not its exact text. There are two sets.
 
 ```bash
-npm install && npm run eval:offline    # 33 evals, no API key or server needed, runs in seconds
-npm run eval                           # all 56, including 23 against the live model (needs a key and the server running)
+npm install && npm run eval:offline    # 35 evals, no API key or server needed, runs in seconds
+npm run eval                           # all 58, including 23 against the live model (needs a key and the server running)
 ```
 
-**Offline: the rules that don't depend on the model.** Some behaviour is fixed in code: a dispute never reaches the answering model, nothing older than 12 months is retrieved, the merchant's internal notes are stripped before anything reaches the screen or the model, and a disputed invoice never offers a Pay button. These evals run without calling a model. They feed the code fixed stand-ins for its output, such as a question pre-labelled as a dispute or a sample answer with an uncited figure, and check the code handles each correctly, so the rules hold whatever the model says.
+**Offline: the rules that don't depend on the model.** Some behaviour is fixed in code: a dispute never reaches the answering model, nothing older than 12 months is retrieved alongside the invoice on screen, the merchant's internal notes are stripped before anything reaches the screen or the model, and a disputed invoice never offers a Pay button. These evals run without calling a model. They feed the code fixed stand-ins for its output, such as a question pre-labelled as a dispute or a sample answer with an uncited figure, and check the code handles each correctly, so the rules hold whatever the model says.
 
 Thirteen of them load the page in a simulated browser (jsdom) and click through it. Three bugs found by hand in one afternoon were all combinations of rules that were each fine on their own, so these check guarantees across every combination: a sent message shows exactly once, a second message never replaces the first, typed text is never lost unless the customer deletes it, and an answer always belongs to the invoice on screen. [`evals/state-model.md`](evals/state-model.md) sets out the combinations and [`evals/dom.js`](evals/dom.js) tests them.
 
@@ -150,7 +150,7 @@ Thirteen of them load the page in a simulated browser (jsdom) and click through 
   PASS  DOM-01  INV1     The sent record appears exactly once, in every state
   PASS  DOM-09  INV6     Payment and routing match the state model, in order
   ...
-  33/33 passed
+  35/35 passed
 ```
 
 Each case is tagged with the acceptance criterion it covers, in [`evals/cases.json`](evals/cases.json). The table above maps criteria to cases.
@@ -161,7 +161,7 @@ Each case is tagged with the acceptance criterion it covers, in [`evals/cases.js
 
 - Whether an answer reads well or is useful. That needs a person; see "Try it".
 - Whether a figure is cited to the *right* line. The check only confirms each figure has a citation.
-- Whether it's ready to release. The spec's release gate is a golden set of at least 50 questions, run in CI before any prompt, model or retrieval change ships, with at least 99% of facts traced to a source. These 56 are run by hand.
+- Whether it's ready to release. The spec's release gate is a golden set of at least 50 questions, run in CI before any prompt, model or retrieval change ships, with at least 99% of facts traced to a source. These 58 are run by hand.
 
 When exploring turns up a problem with the spec, the fix gets a case here, so it can't quietly break again.
 
