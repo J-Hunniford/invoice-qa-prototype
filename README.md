@@ -2,7 +2,7 @@
 
 This is a working prototype of a self-service Q&A feature for a customer-facing invoice portal. The end user (a payer) asks a plain-language question about their invoice and gets an answer **grounded in their invoice records**: where the data exists, every fact and figure in the answer is cited back to the specific line item it came from.
 
-<img src="docs/answer-with-citations.png" width="600" alt="The prototype answering why a late fee was charged on invoice INV-1014, with each figure cited to the invoice line it came from">
+<img src="docs/answer-with-citations.png" width="600" alt="The prototype explaining why unpaid invoice INV-1071 costs more than the one before it, citing each figure to its invoice line, with the option to pay underneath">
 
 The point of this feature is to get invoices paid faster. People are slow to pay invoices they don't understand. Some will ask the merchant by email or phone and then wait; others mean to ask and never do, so the invoice sits unpaid and nobody ever hears the question. This answers it while the payer is still looking at the invoice, and offers the two things that move payment forward: pay now, or write to the merchant about whatever understanding the invoice can't settle.
 
