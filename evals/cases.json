@@ -589,6 +589,22 @@
       "expect": {
         "state": "contact_request"
       }
+    },
+    {
+      "id": "ON-25",
+      "ac": "AC2",
+      "name": "Partial retrieval declines, never a partial answer",
+      "question": "Why is the freight on INV-1071 higher than on INV-1058?",
+      "invoiceId": "INV-1071",
+      "simulateUnavailable": [
+        "INV-1058"
+      ],
+      "expect": {
+        "state": "cannot_answer",
+        "noFiguresFrom": [
+          "INV-1058"
+        ]
+      }
     }
   ]
 }

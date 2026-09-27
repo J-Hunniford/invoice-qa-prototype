@@ -376,6 +376,7 @@ async function runOnline() {
           invoiceId: c.invoiceId,
           question: c.question,
           ...(c.simulateFailure ? { simulateFailure: true } : {}),
+          ...(c.simulateUnavailable ? { simulateUnavailable: c.simulateUnavailable } : {}),
         }),
       });
       const body = await res.json();
@@ -388,6 +389,24 @@ async function runOnline() {
       const allowed = c.expect.stateOneOf ?? [c.expect.state];
       let ok = allowed.includes(body.state);
       let detail = ok ? "" : `state=${body.state}, wanted ${allowed.join(" or ")}`;
+
+      /* Partial retrieval (spec, Edge Cases). The model was never given the
+         withheld record, so a figure cited to it can only be a guess passed
+         off as sourced: the guessed remainder the spec rules out. Checked
+         whatever state came back, because a guess is a worse failure than
+         answering only the half it could see, and the report should say
+         which one happened. */
+      if (c.expect.noFiguresFrom) {
+        const guessed = (body.citations ?? []).filter((x) =>
+          c.expect.noFiguresFrom.includes(x.invoice_id),
+        );
+        if (guessed.length) {
+          ok = false;
+          detail = `guessed a withheld record: ${guessed
+            .map((x) => `${x.invoice_id} ${x.line_item} ${x.amount}`)
+            .join(", ")}`;
+        }
+      }
 
       if (ok && c.expect.minCitations) {
         const n = body.citations?.length ?? 0;

@@ -233,7 +233,7 @@ app.post("/api/route-to-merchant", (req, res) => {
 });
 
 app.post("/api/ask", async (req, res) => {
-  const { invoiceId, question, simulateFailure } = req.body ?? {};
+  const { invoiceId, question, simulateFailure, simulateUnavailable } = req.body ?? {};
 
   if (!question || !question.trim()) {
     return res.status(400).json({ state: "invalid", message: "Ask a question first." });
@@ -276,7 +276,15 @@ app.post("/api/ask", async (req, res) => {
     const pre = decidePreAnswer(ctx, intent, selected);
     if (pre.terminal) return res.json(pre.terminal);
 
-    const result = await answer(question, pre.records, selected);
+    // Test hook, same idea as simulateFailure: in this data every record a
+    // question needs is always retrieved, so the spec's partial-retrieval
+    // edge case never happens on its own. Names invoices to leave out of
+    // what the answering model is given. It can only take records away.
+    const records = Array.isArray(simulateUnavailable)
+      ? pre.records.filter((r) => !simulateUnavailable.includes(r.invoice_id))
+      : pre.records;
+
+    const result = await answer(question, records, selected);
 
     // Stage 2 — the model reports a status; turning that into what the
     // customer sees, and the older-history notice, happen in code.

@@ -210,7 +210,7 @@
   ],
   "test_notes": {
     "history_window_boundary": "INV-0812 (2025-06-15) sits outside the 12-month retrieval window as of query_time 2026-08-04. Question 9, asked on INV-1071, should disclose that the older history is out of scope rather than answer silently against INV-0812 or silently omit it.",
-    "partial_retrieval": "Question 8, asked on INV-1071, exercises the partial-retrieval path. If both freight records are retrievable it grounds per AC1. If one is unavailable, the spec's Edge Cases require an AC2 decline rather than a partial answer with a guessed comparison.",
+    "partial_retrieval": "Question 8, asked on INV-1071, compares the freight on two invoices. Both records are always retrievable in this data, so asked normally it grounds per AC1 and never takes the partial-retrieval path. If one were unavailable, the spec's Edge Cases require an AC2 decline rather than a partial answer with a guessed comparison. Eval ON-25 forces that by withholding INV-1058 through the simulateUnavailable test hook on /api/ask.",
     "vague_reference": "Question 5 ('Why did this go up?') names nothing. Asked inside an invoice it grounds against that invoice per AC1. Open INV-1071 for a comparison it can make, or INV-1042 for one where the answer is that nothing went up."
   }
 }
