@@ -2,6 +2,8 @@
 
 This is a working prototype of a self-service Q&A feature for a customer-facing invoice portal. The end user (a payer) asks a plain-language question about their invoice and gets an answer **grounded in their invoice records**: where the data exists, every fact and figure in the answer is cited back to the specific line item it came from.
 
+<img src="docs/answer-with-citations.png" width="600" alt="The prototype answering why a late fee was charged on invoice INV-1014, with each figure cited to the invoice line it came from">
+
 The point of this feature is to get invoices paid faster. People are slow to pay invoices they don't understand. Some will ask the merchant by email or phone and then wait; others mean to ask and never do, so the invoice sits unpaid and nobody ever hears the question. This answers it while the payer is still looking at the invoice, and offers the two things that move payment forward: pay now, or write to the merchant about whatever understanding the invoice can't settle.
 
 Invoices are the specific context here, but the shape of the problem is general: open-ended questions asked by end users, and answers bounded by records the organisation already holds.
@@ -215,7 +217,8 @@ Product decisions live in the spec, not here. What v1 leaves out is in its Non-G
 │   └── synthetic_invoice_data.json   # the fictional invoices, plus test questions and notes
 └── docs/
     ├── invoice_qa_feature_spec.md    # the spec
-    └── decisions.md                  # what changed in the spec, and why
+    ├── decisions.md                  # what changed in the spec, and why
+    └── answer-with-citations.png     # the screenshot at the top of this README
 ```
 
 `data/synthetic_invoice_data.json` includes a `test_notes` section saying which invoice to open for the less obvious questions, and what each one is meant to show. Worth a look before you start exploring.
