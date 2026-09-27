@@ -322,8 +322,8 @@
     },
     {
       "id": "OFF-25",
-      "ac": "Technical Constraints",
-      "name": "Naming an invoice does not bypass the window",
+      "ac": "Non-Goal",
+      "name": "A named invoice from before the window is disclosed",
       "intent": {
         "intent": "factual",
         "referenced_invoice_ids": [
@@ -334,10 +334,9 @@
       },
       "selected": "INV-1071",
       "expect": {
-        "terminal": false,
-        "recordsExclude": [
-          "INV-0812"
-        ]
+        "terminal": true,
+        "state": "cannot_answer",
+        "messageIncludes": "INV-0812"
       }
     },
     {
@@ -355,6 +354,50 @@
         "terminal": false,
         "recordsInclude": [
           "INV-0812"
+        ]
+      }
+    },
+    {
+      "id": "OFF-27",
+      "ac": "AC2",
+      "name": "Partial retrieval declines before the model is asked",
+      "intent": {
+        "intent": "comparative",
+        "referenced_invoice_ids": [
+          "INV-1071",
+          "INV-1058"
+        ],
+        "implies_older_history": false,
+        "needs_history": true
+      },
+      "selected": "INV-1071",
+      "simulateUnavailable": [
+        "INV-1058"
+      ],
+      "expect": {
+        "terminal": true,
+        "state": "cannot_answer"
+      }
+    },
+    {
+      "id": "OFF-28",
+      "ac": "AC2",
+      "name": "Named invoices that were retrieved reach the model",
+      "intent": {
+        "intent": "comparative",
+        "referenced_invoice_ids": [
+          "INV-1071",
+          "INV-1058"
+        ],
+        "implies_older_history": false,
+        "needs_history": true
+      },
+      "selected": "INV-1071",
+      "expect": {
+        "terminal": false,
+        "recordsInclude": [
+          "INV-1071",
+          "INV-1058"
         ]
       }
     }

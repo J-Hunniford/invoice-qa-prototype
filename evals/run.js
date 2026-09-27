@@ -19,6 +19,7 @@ import {
   makeContext,
   authorizeInvoice,
   decidePreAnswer,
+  decideRetrieved,
   decidePostAnswer,
   inWindowInvoices,
   uncitedFigures,
@@ -284,11 +285,20 @@ function runOffline() {
         continue;
       }
 
-      // Stage-1 cases — supply a classification, assert the routing
+      // Stage-1 cases — supply a classification, assert the routing. Covers
+      // both decisions the server makes before calling the answering model,
+      // with any records the case withholds taken out between them.
       const selected = c.selected
         ? dataset.invoices.find((i) => i.invoice_id === c.selected)
         : null;
-      const pre = decidePreAnswer(ctx, c.intent, selected);
+      let pre = decidePreAnswer(ctx, c.intent, selected);
+      if (!pre.terminal) {
+        const records = pre.records.filter(
+          (r) => !c.simulateUnavailable?.includes(r.invoice_id),
+        );
+        const declined = decideRetrieved(ctx, c.intent, records);
+        pre = declined ? { terminal: declined } : { proceed: true, records };
+      }
 
       if (c.expect.terminal === false) {
         let ok = !pre.terminal;
@@ -323,6 +333,12 @@ function runOffline() {
         if (n < c.expect.minCandidates) {
           ok = false;
           detail = `${n} candidates, wanted ≥${c.expect.minCandidates}`;
+        }
+      }
+      if (ok && c.expect.messageIncludes) {
+        if (!pre.terminal.message.includes(c.expect.messageIncludes)) {
+          ok = false;
+          detail = `message never mentions ${c.expect.messageIncludes}`;
         }
       }
       record(c.id, c.ac, c.name, ok, detail);

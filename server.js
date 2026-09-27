@@ -9,6 +9,7 @@ import {
   authorizeInvoice,
   inWindowInvoices,
   decidePreAnswer,
+  decideRetrieved,
   decidePostAnswer,
 } from "./lib/core.js";
 
@@ -283,6 +284,11 @@ app.post("/api/ask", async (req, res) => {
     const records = Array.isArray(simulateUnavailable)
       ? pre.records.filter((r) => !simulateUnavailable.includes(r.invoice_id))
       : pre.records;
+
+    // A named invoice missing from the records is declined here, never left
+    // for the model to answer around.
+    const declined = decideRetrieved(ctx, intent, records);
+    if (declined) return res.json(declined);
 
     const result = await answer(question, records, selected);
 
