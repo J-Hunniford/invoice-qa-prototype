@@ -281,6 +281,10 @@ function runOffline() {
           ok = false;
           detail = "a decline must not offer retry";
         }
+        if (ok && c.expect.messageIncludes && !out.message?.includes(c.expect.messageIncludes)) {
+          ok = false;
+          detail = `message never mentions ${c.expect.messageIncludes}`;
+        }
         record(c.id, c.ac, c.name, ok, detail);
         continue;
       }

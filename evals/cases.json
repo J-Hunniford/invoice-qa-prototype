@@ -400,6 +400,47 @@
           "INV-1058"
         ]
       }
+    },
+    {
+      "id": "OFF-29",
+      "ac": "Non-Goal",
+      "name": "A decline says so when older history was left out",
+      "intent": {
+        "intent": "comparative",
+        "referenced_invoice_ids": [],
+        "implies_older_history": true,
+        "needs_history": true
+      },
+      "result": {
+        "status": "no_supporting_records",
+        "answer": "",
+        "citations": []
+      },
+      "expect": {
+        "state": "cannot_answer",
+        "noRetry": true,
+        "messageIncludes": "12 months"
+      }
+    },
+    {
+      "id": "OFF-30",
+      "ac": "Non-Goal",
+      "name": "Nothing earlier to compare also mentions the limit",
+      "intent": {
+        "intent": "comparative",
+        "referenced_invoice_ids": [],
+        "implies_older_history": true,
+        "needs_history": true
+      },
+      "result": {
+        "status": "no_comparison_history",
+        "answer": "There is no earlier invoice to compare against.",
+        "citations": []
+      },
+      "expect": {
+        "state": "no_history",
+        "messageIncludes": "12 months"
+      }
     }
   ],
   "online": [
