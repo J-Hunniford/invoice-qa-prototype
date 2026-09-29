@@ -112,7 +112,7 @@ It helps to push where the system has to make a judgement call:
 - **Just vent.** *"This supplier is useless."* There's no question in it, so it says what it's for and stops. It deliberately doesn't offer to forward what you wrote, since that would make it easy to send an angry message to a supplier you still have to deal with.
 - **Say the same thing three ways.** Do the answers agree?
 
-**What counts as a finding.** Anything that surprises you, including a response that follows the spec and still feels wrong. Note the invoice, what you asked, and what you expected. Several of the spec's fourteen changes started exactly like that. In one, a customer asking about a late fee got a correct answer and was then offered only a conversation with the merchant, on an invoice they could have paid in one click. The system was working as specified, so the fix went into the spec as AC13, and AC13 now has eval cases so the fix stays fixed. [`docs/decisions.md`](docs/decisions.md) records all fourteen changes.
+**What counts as a finding.** Anything that surprises you, including a response that follows the spec and still feels wrong. Note the invoice, what you asked, and what you expected. Several of the spec's eleven changes started exactly like that. In one, a customer asking about a late fee got a correct answer and was then offered only a conversation with the merchant, on an invoice they could have paid in one click. The system was working as specified, so the fix went into the spec as AC13, and AC13 now has eval cases so the fix stays fixed. [`docs/decisions.md`](docs/decisions.md) records all eleven changes.
 
 ---
 
@@ -182,9 +182,9 @@ When exploring turns up a problem with the spec, the fix gets a case here, so it
 
 The spec was drafted first, then put through [`pm-spec-workflow`](https://github.com/J-Hunniford/pm-spec-workflow), a spec review tool I built in Claude Code (private repo). Up to eight AI reviewers read it in parallel, each checking one thing: whether the criteria can be tested, whether the scope is clear, whether the language is vague, whether edge cases are covered, and so on. Their findings become a short set of questions for the PM. The reviewers only judge; a separate step rewrites the spec once those questions are answered.
 
-**Building the prototype then changed the spec fourteen more times.** A review is good at spotting requirements that can't be tested. It's much worse at spotting ones that are testable and simply wrong, and building the feature finds those. The clearest example: AC4 told the customer their dispute had been flagged for the merchant's support team, when nothing had been sent anywhere. A developer would have built exactly that, and every customer raising a dispute would have been told something untrue.
+**The spec then changed eleven more times, most of them prompted by building the prototype.** A review is good at spotting requirements that can't be tested. It's much worse at spotting ones that are testable and simply wrong, and building the feature finds those. The clearest example: AC4 told the customer their dispute had been flagged for the merchant's support team, when nothing had been sent anywhere. A developer would have built exactly that, and every customer raising a dispute would have been told something untrue.
 
-These were mistakes in the requirements, not the code. Finding them at this stage costs hours; finding them after engineering has built to the spec costs weeks. [`docs/decisions.md`](docs/decisions.md) lists all fourteen changes.
+These were mistakes in the requirements, not the code. Finding them at this stage costs hours; finding them after engineering has built to the spec costs weeks. [`docs/decisions.md`](docs/decisions.md) lists all eleven changes.
 
 ---
 
