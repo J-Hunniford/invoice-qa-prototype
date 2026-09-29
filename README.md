@@ -16,9 +16,9 @@ The prototype and the spec in [`docs/invoice_qa_feature_spec.md`](docs/invoice_q
 
 This is a proof of concept rather than a product. The data is entirely fictional and fixed. It was built with Claude Code to explore how a draft spec and a prototype develop against each other: the spec was drafted first, building against it tested the requirements, and the issues that surfaced went back into the spec.
 
-Speed matters here. Building a working feature used to cost enough that nobody would do it to interrogate a draft. You finished the spec, handed it over, and found out what was wrong from engineering. Building something like this takes a day or two at most, which makes a prototype cheap enough to use as a drafting tool rather than something you only get once the spec is finished.
+Speed matters here. Building a prototype used to cost so much time and money that few product people had the luxury of doing it before handing a spec to engineering. But that 'finished' spec was typically only the starting point for a back-and-forth with engineering and other stakeholders to remove ambiguity and move, often slowly, towards clarity on the shape of the solution and its technical feasibility. Building a prototype like this one, for a new AI feature, takes a day or two at most, which makes it cheap enough to use for validating and clarifying the spec.
 
-Working this way puts something running in front of customers, product architects and engineering leads while the spec is still a draft. What reaches engineering after a short validation loop is a spec whose product-side questions have already been answered. What's still open belongs to engineering, architecture and legal, and each open question is framed so the acceptance criteria hold whichever way it resolves. The alternative is finding all of it mid-sprint, after engineering has committed to a date.
+Working this way puts something running in front of customers, product architects and engineering leads while the spec is still a draft. What reaches engineering after a short validation loop is a spec whose product-side questions have already been answered.
 
 ---
 
@@ -53,28 +53,38 @@ Each invoice also has a **Simulate a system failure** button, marked on screen a
 ```
 question
    │
-   ├─ authorization check ─────────────► generic "couldn't find that invoice"
+   ├─ authorization check (code) ───────► generic "couldn't find that invoice"
    │
-   ├─ classify intent (Claude, structured output)
+   ├─ classify the question (LLM)
+   │
+   ├─ act on the label (code)
    │      │
    │      ├─ dispute ───────────────────► never answered; offer a route to a person
    │      ├─ contact request ───────────► offer to write to the merchant
    │      ├─ cross-merchant ────────────► disclosed as out of scope
    │      └─ nothing actually asked ────► say what the assistant is for, and stop
    │
-   ├─ retrieve (bounded to 12 months)
+   ├─ retrieve (code, bounded to 12 months)
    │      │
    │      └─ named invoice missing ─────► declined, saying so if it's over 12 months old
    │
-   └─ answer (Claude, structured output)
+   ├─ write the answer (LLM)
+   │
+   └─ decide what's shown (code)
+          │
           ├─ grounded ──────────────────► answer + inline citations
           ├─ no supporting records ─────► "can't answer confidently"
           └─ no prior invoice ──────────► "nothing earlier to compare"
 ```
 
-A model classifies the question and ordinary code decides what happens next. Disputes, contact requests, cross-merchant questions, messages that don't ask anything, and questions naming an invoice that wasn't retrieved are all settled in code before the answering model is called, so it never sees them. It isn't trusted to spot a dispute and refuse on its own, because in a financial context a confident wrong answer is worse than no answer.
+An LLM is used twice, for two different jobs, and ordinary code does everything else:
 
-Both model calls use Claude because the prototype was built with it. Which model production uses, and whether the two calls need the same one, is an engineering decision.
+- **Classifying the question.** The LLM returns a label, such as "dispute" or "factual", plus any invoice numbers the question names. It doesn't answer. Code then acts on the label. Disputes, contact requests, cross-merchant questions, messages that don't ask anything, and questions naming an invoice that wasn't retrieved are all settled in code, so they never reach the answering call.
+- **Writing the answer.** The LLM works only from the invoices the code retrieved, and says whether they supported an answer. Code then decides what the customer sees: the answer with its citations or a decline, a note if older invoices were left out, and the options to pay or write to the merchant.
+
+Spotting a dispute is the LLM's job, but refusing to answer one is left to code, because in a financial context a confident wrong answer is worse than no answer.
+
+Both LLM calls use Claude. Which LLM to use in production, and whether both calls need the same one, is an engineering decision.
 
 ---
 
@@ -131,19 +141,18 @@ It helps to push where the system has to make a judgement call:
 ---
 
 ## Evals
-
-The evals are 62 cases, each pairing a question or situation with what an acceptable response looks like. Because the model's wording varies from run to run, they check properties of a response, such as whether every figure is cited, not its exact text. There are two sets.
+The evals are 62 cases, each pairing a question or situation with what an acceptable response looks like. Because the LLM's wording varies from run to run, they check properties of a response, such as whether every figure is cited, not its exact text. There are two sets.
 
 ```bash
 npm install && npm run eval:offline    # 39 evals, no API key or server needed, runs in seconds
-npm run eval                           # all 62, including 23 against the live model (needs a key and the server running)
+npm run eval                           # all 62, including 23 against the live LLM (needs a key and the server running)
 ```
 
-**Offline: the rules that don't depend on the model.** Some behaviour is fixed in code: a dispute never reaches the answering model, nothing older than 12 months is retrieved alongside the invoice on screen, the merchant's internal notes are stripped before anything reaches the screen or the model, and a disputed invoice never offers a Pay button. These evals run without calling a model. They feed the code fixed stand-ins for its output, such as a question pre-labelled as a dispute or a sample answer with an uncited figure, and check the code handles each correctly, so the rules hold whatever the model says.
+**Offline: the rules that don't depend on the LLM.** Some behaviour is fixed in code: a dispute never reaches the answering call, nothing older than 12 months is retrieved alongside the invoice on screen, the merchant's internal notes are stripped before anything reaches the screen or the LLM, and a disputed invoice never offers a Pay button. These evals run without calling the LLM. They feed the code fixed stand-ins for what the LLM would return, such as a question pre-labelled as a dispute or a reply that declines, and check the code handles each correctly, so these rules hold whatever the LLM says.
 
 Thirteen of them load the page in a simulated browser (jsdom) and click through it. Three bugs found by hand in one afternoon were all combinations of rules that were each fine on their own, so these check guarantees across every combination: a sent message shows exactly once, a second message never replaces the first, typed text is never lost unless the customer deletes it, and an answer always belongs to the invoice on screen. [`evals/state-model.md`](evals/state-model.md) sets out the combinations and [`evals/dom.js`](evals/dom.js) tests them.
 
-**Online: what the model actually did.** Nineteen evals send a question end to end through the app and the live model and check what comes back: figures cited, declines where it can't answer, disputes recognised. Four more test sending a message to the merchant. A pass means it behaved on this run, not that it always will.
+**Online: what the LLM actually did.** Nineteen evals send a question end to end through the app and the live LLM and check what comes back: figures cited, declines where it can't answer, disputes recognised. Four more test sending a message to the merchant. A pass means it behaved on this run, not that it always will.
 
 ```
   PASS  OFF-01  AC4      Dispute intent never reaches the answer path
@@ -163,7 +172,7 @@ Each case is tagged with the acceptance criterion it covers, in [`evals/cases.js
 
 - Whether an answer reads well or is useful. That needs a person; see "Try it".
 - Whether a figure is cited to the *right* line. The check only confirms each figure has a citation.
-- Whether it's ready to release. The spec's release gate is a golden set of at least 50 questions, run in CI before any prompt, model or retrieval change ships, with at least 99% of facts traced to a source. These 62 are run by hand.
+- Whether it's ready to release. The spec's release gate is a golden set of at least 50 questions, run in CI before any prompt, LLM or retrieval change ships, with at least 99% of facts traced to a source. These 62 are run by hand.
 
 When exploring turns up a problem with the spec, the fix gets a case here, so it can't quietly break again.
 
@@ -193,7 +202,7 @@ Everything listed under *Where each requirement lives* is real code. These are t
 
 **The feature name.** "Ask" is a placeholder. Naming a customer-facing feature is a decision for product, marketing and leadership after a proof of concept, which is why no name appears in the acceptance criteria.
 
-**Model choice.** Both calls use `claude-opus-5`, with the classifier set to low effort because it's a narrow labelling task.
+**LLM choice.** Both calls use `claude-opus-5`, with the classifying call set to low effort because it's a narrow labelling task.
 
 Product decisions live in the spec, not here. What v1 leaves out is in its Non-Goals, and what's still undecided, such as which system delivers messages to the merchant, is in its Open Questions.
 
@@ -205,7 +214,7 @@ Product decisions live in the spec, not here. What v1 leaves out is in its Non-G
 ├── server.js                 # web server and both Claude calls
 ├── lib/
 │   └── core.js               # routing, retrieval window, authorization, citation check
-│                             #   pure functions, so the rules can be tested without a model
+│                             #   pure functions, so the rules can be tested without the LLM
 ├── evals/
 │   ├── cases.json            # eval cases, each tagged with its acceptance criterion
 │   ├── state-model.md        # what the browser must show, in every combination
