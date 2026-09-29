@@ -101,18 +101,18 @@ The evals further down check the requirements automatically. This section contai
 
 ### Then try to break it
 
-The quick tour confirms the prototype does what the spec says. That's the smaller part of what it's for. The bigger part is finding where the spec itself is wrong, and that only happens when people ask their own questions in their own words.
+The quick tour confirms the prototype does what the spec says. The bigger job is finding where the spec itself is wrong, and that only happens when people ask their own questions in their own words.
 
-It helps to push where the system has to make a judgement call:
+Push where the system has to make a judgement call:
 
-- **Mix a question with a complaint.** *"Why was the freight so high? I want it refunded."* Anything that reads as a dispute isn't answered, even if it also asks something factual. Is that the right call for what you asked?
+- **Mix a question with a complaint.** *"Why was the freight so high? I want it refunded."* Anything that reads as a dispute isn't answered, even if it also asks something factual. Is that the right call?
 - **Ask a follow-up.** Ask something, then *"and the one before that?"* Each question is answered on its own, with no memory of the last, so a follow-up that can't stand alone is declined. Would a customer expect that?
 - **Start from a wrong assumption.** Open **INV-1042** and ask *"why did this go up?"* Nothing went up. Does it say so, or play along?
-- **Ask something the invoice can't know.** *"What discount will you give me next quarter?"* That's a real question the records can't answer, so it should be declined, not brushed off as small talk.
+- **Ask something the invoice can't know.** *"What discount will you give me next quarter?"* That's a real question the records can't answer. Does it decline, or brush it off as small talk?
 - **Just vent.** *"This supplier is useless."* There's no question in it, so it says what it's for and stops. It deliberately doesn't offer to forward what you wrote, since that would make it easy to send an angry message to a supplier you still have to deal with.
 - **Say the same thing three ways.** Do the answers agree?
 
-**What counts as a finding.** Anything that surprises you, including a response that follows the spec and still feels wrong. Note the invoice, what you asked, and what you expected. Several of the spec's eleven changes started exactly like that. In one, a customer asking about a late fee got a correct answer and was then offered only a conversation with the merchant, on an invoice they could have paid in one click. The system was working as specified, so the fix went into the spec as AC13, and AC13 now has eval cases so the fix stays fixed. [`docs/decisions.md`](docs/decisions.md) records all eleven changes.
+**What counts as a finding.** Anything that surprises you, including a response that follows the spec and still feels wrong. Note the invoice, what you asked, and what you expected. Several of the spec's eleven changes started exactly like that. In one, a customer asking about a late fee got a correct answer and was then offered only a conversation with the merchant, on an invoice they could have paid in one click. The system was working as specified, so the change went into the spec as AC13, which now has eval cases to keep it in place. [`docs/decisions.md`](docs/decisions.md) records all eleven changes.
 
 ---
 
