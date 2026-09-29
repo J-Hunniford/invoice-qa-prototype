@@ -211,25 +211,25 @@ Product decisions live in the spec, not here. What v1 leaves out is in its Non-G
 ## Layout
 
 ```
-├── server.js                 # web server and both Claude calls
+invoice-qa-prototype/
+├── server.js                        # web server and both LLM calls
 ├── lib/
-│   └── core.js               # routing, retrieval window, authorization, citation check
-│                             #   pure functions, so the rules can be tested without the LLM
-├── evals/
-│   ├── cases.json            # eval cases, each tagged with its acceptance criterion
-│   ├── state-model.md        # what the browser must show, in every combination
-│   ├── dom.js                # tests that model in a simulated browser (jsdom)
-│   └── run.js                # runs the offline and online sets
-├── public/                   # the single-page interface
+│   └── core.js                      # the rules, as pure functions (testable without the LLM)
+├── public/                          # the single-page interface
 │   ├── index.html
-│   ├── app.js                # screen states, retry logic, message writing
+│   ├── app.js                       # screen states, retry logic, message writing
 │   └── styles.css
+├── evals/
+│   ├── run.js                       # runs the offline and online evals
+│   ├── cases.json                   # eval cases, each tagged with its acceptance criterion
+│   ├── dom.js                       # tests the state model in a simulated browser (jsdom)
+│   └── state-model.md               # what the browser must show, in every combination
 ├── data/
-│   └── synthetic_invoice_data.json   # the fictional invoices, plus test questions and notes
+│   └── synthetic_invoice_data.json  # the fictional invoices, test questions and notes
 └── docs/
-    ├── invoice_qa_feature_spec.md    # the spec
-    ├── decisions.md                  # what changed in the spec, and why
-    └── answer-with-citations.png     # the screenshot at the top of this README
+    ├── invoice_qa_feature_spec.md   # the spec
+    ├── decisions.md                 # what changed in the spec, and why
+    └── answer-with-citations.png    # the screenshot at the top of this README
 ```
 
 `data/synthetic_invoice_data.json` includes a `test_notes` section saying which invoice to open for the less obvious questions, and what each one is meant to show. Worth a look before you start exploring.
