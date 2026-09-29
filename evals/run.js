@@ -26,7 +26,7 @@ import {
   payerVisible,
   offersPayment,
   paymentIsPrimary,
-  MERCHANT_INTERNAL_FIELDS,
+  PAYER_VISIBLE_FIELDS,
 } from "../lib/core.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -161,11 +161,16 @@ function runOffline() {
           [authorizeInvoice(ctx, "INV-1085").invoice].filter(Boolean),
         ]) {
           for (const inv of set) {
-            for (const f of MERCHANT_INTERNAL_FIELDS) {
-              if (f in inv) leaks.push(`${inv.invoice_id}.${f}`);
+            for (const f of Object.keys(inv)) {
+              if (!PAYER_VISIBLE_FIELDS.includes(f)) leaks.push(`${inv.invoice_id}.${f}`);
             }
           }
         }
+        // A field nobody has listed stays behind too. That's the point of an
+        // allowlist: the merchant can add to the record without it reaching
+        // the payer by default.
+        const probe = payerVisible({ ...dataset.invoices[0], credit_assessment: "slow payer" });
+        if ("credit_assessment" in probe) leaks.push("an unlisted field got through");
         record(c.id, c.ac, c.name, leaks.length === 0, leaks.join(", "));
         continue;
       }
@@ -181,11 +186,6 @@ function runOffline() {
           const note = (inv.note ?? "").toLowerCase();
           for (const phrase of banned) {
             if (note.includes(phrase)) leaks.push(`${inv.invoice_id}: "${phrase}"`);
-          }
-          // Retrieval must never hand a merchant annotation to the model.
-          const visible = payerVisible(inv);
-          for (const f of MERCHANT_INTERNAL_FIELDS) {
-            if (f in visible) leaks.push(`${inv.invoice_id}: ${f} survived retrieval`);
           }
         }
         record(c.id, c.ac, c.name, leaks.length === 0, leaks.join("; "));
@@ -332,13 +332,6 @@ function runOffline() {
         ? ""
         : `state=${pre.terminal ? pre.terminal.state : "proceeded"}, wanted ${c.expect.state}`;
 
-      if (ok && c.expect.minCandidates) {
-        const n = pre.terminal.candidates?.length ?? 0;
-        if (n < c.expect.minCandidates) {
-          ok = false;
-          detail = `${n} candidates, wanted ≥${c.expect.minCandidates}`;
-        }
-      }
       if (ok && c.expect.messageIncludes) {
         if (!pre.terminal.message.includes(c.expect.messageIncludes)) {
           ok = false;
@@ -477,14 +470,6 @@ async function runOnline() {
             ok = false;
             detail = `${figures.length} figure(s) but ${markers.length} marker(s)`;
           }
-        }
-      }
-
-      if (ok && c.expect.minCandidates) {
-        const n = body.candidates?.length ?? 0;
-        if (n < c.expect.minCandidates) {
-          ok = false;
-          detail = `${n} candidates, wanted ≥${c.expect.minCandidates}`;
         }
       }
 

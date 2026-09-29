@@ -139,7 +139,7 @@
         "needs_history": true
       },
       "result": {
-        "status": "ok",
+        "status": "answered",
         "answer": "The total rose to $1,616.00.",
         "citations": [
           {
@@ -167,7 +167,7 @@
         "needs_history": false
       },
       "result": {
-        "status": "ok",
+        "status": "answered",
         "answer": "The total is $1,616.00.",
         "citations": [
           {
