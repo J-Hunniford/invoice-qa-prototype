@@ -1,6 +1,6 @@
 # Feature Name: Ask About This Invoice
 
-**Status:** Draft, portfolio/demonstration spec (v0.18)
+**Status:** Draft, portfolio/demonstration spec (v0.19)
 **Author:** J-Hunniford
 **Domain:** Customer Portal, AR Automation
 
@@ -273,7 +273,6 @@ Groundedness and hallucination rate gate release; the rest are directional.
 
 ## Open Questions
 
-- What is the right retention/audit policy for logged Q&A interactions, given they involve financial data? `[TBD]`
 - Should the 12-month retrieval window be configurable per merchant, or fixed platform-wide? `[TBD]`
 - What volume of dispute-shaped questions should be expected, and does the merchant support-routing channel have capacity for it? `[TBD]`
 - **Does the platform operate any payer-facing support channel of its own?** AC10 routes to the merchant, which covers the substance of a bill. It does not cover a payer who cannot use the portal at all, such as a login failure the merchant cannot fix. That path is unspecified. `[TBD: confirm with support/ops]`
@@ -284,7 +283,16 @@ Groundedness and hallucination rate gate release; the rest are directional.
 
 - **Should the platform screen the language of a message before passing it to the merchant?** The compose step and AC14's confirmation already prevent the main harm, since nothing written to the assistant is forwarded and the customer must address a person deliberately. Going further is a policy question rather than a technical one: whose standards apply, what a blocked customer is told, and whether a platform should edit what one business says to another. `[TBD: policy]`
 - **AI transparency obligations need legal confirmation.** AC9 specifies disclosure as defensible practice. Whether it is also a requirement, in what form and in which markets, depends on regimes including the EU AI Act and emerging US state legislation, and on where this merchant's payers are. If a specific wording or placement is mandated, AC9 becomes the floor rather than the specification. `[TBD: legal review]`
+- **Should the on-screen disclosure say more than AC9 requires?** Proposed and not built: wording on the panel notice that an answer can be wrong and the cited lines should be checked; a route on each answer for querying it, using AC10's existing message to the merchant; and a short "how this works" explanation of whether an outside provider helps produce the answers and what the questions are used for. If adopted these become additions to AC9, with eval cases. `[TBD: product, after legal review]`
+- **What terms govern sending payer data to an LLM provider?** If the model is hosted by an outside provider, as in the prototype, each question is sent to it with the customer and merchant names and the payer-visible invoice records. Business invoices still contain people: contact names, and sole traders whose business is themselves. Needed before launch: a processing agreement limiting the provider to the platform's instructions, confirmation that the data is not used to train models, a lawful transfer route if it is processed in another jurisdiction, and a line in the privacy notice. The platform already handles this data on its merchants' behalf, so merchant contracts must also permit a further processor. `[TBD: legal review]`
+- **What is the right retention and audit policy for logged Q&A interactions, given they involve financial data?** The two questions below both depend on the answer. `[TBD]`
+- **May payers' questions be used for anything beyond answering them?** Today they are not, and Non-Goals already rules out varying what a payer is told by their history. Two further uses are plausible and are not the same decision. In aggregate, questions show which charges confuse payers, which is product insight at low risk. Per payer, they could inform a view of who is likely to pay late, which is profiling. That would need its own review, notice to payers before it starts, a way to opt out, and a decision on who sees the result, since a merchant who sees it could change a payer's terms because they asked a question. Whether opt-out is sufficient, or consent is required, varies by market. `[TBD: product and legal]`
+- **Who owns the feature once it is live, and how are live answers reviewed?** The release gate covers changes before they ship. Nothing yet covers answers after they do. The known gap is a figure cited to the wrong line, which passes the automated check and is still wrong; a reviewed sample of live answers is what would catch it, alongside any answer a payer queries. Review requires logging, so this depends on the retention question above. `[TBD: product and the owning team]`
 - Latency budget is deliberately not fixed here. It is an architecture and UX collaboration, not a product-level number.
+
+---
+
+---
 
 ---
 
