@@ -8,7 +8,7 @@ The point of this feature is to get invoices paid faster. People are slow to pay
 
 Invoices are the specific context here, but the shape of the problem is general: open-ended questions asked by end users, and answers bounded by records the organisation already holds.
 
-The prototype and the spec in [`docs/invoice_qa_feature_spec.md`](docs/invoice_qa_feature_spec.md) were built against each other, and both changed in the process. Further down, a table maps each acceptance criterion to the code that implements it and how to check it.
+The prototype and the spec in [`docs/invoice_qa_feature_spec.md`](docs/invoice_qa_feature_spec.md) were built against each other, and both changed in the process. Further down, a table maps each acceptance criterion to the code that implements it and how to check it, and a [Governance](#governance) section does the same for disclosure, data handling and wrong answers.
 
 ---
 
@@ -207,7 +207,24 @@ Everything listed under *Where each requirement lives* is real code. These are t
 Product decisions live in the spec, not here. What v1 leaves out is in its Non-Goals, and what's still undecided, such as which system delivers messages to the merchant, is in its Open Questions.
 
 ---
+## Governance
 
+This feature puts an LLM between a business and the people who owe it money, so AI governance questions are upfront requirements, not a review at the end. Most of the answers are already acceptance criteria with evals behind them. This section gathers the key points in one place and calls out what would need to be resolved before launching a feature like this one. None of the last column is built.
+
+| Question | What the prototype does | Where to check | Still needed before launch |
+|---|---|---|---|
+| Does the payer know it's automated? | A permanent notice on the panel, and a label on every answer so it survives a screenshot | AC9; DOM-11 | Legal confirmation of wording and placement in each market |
+| What leaves the platform? | Each question goes to an outside LLM provider with the customer and merchant names and the invoice fields the payer is entitled to see. The merchant's internal notes are removed before retrieval returns, so the LLM never has them | `payerVisible()`; OFF-19, ON-20 | A contract with the provider, confirmation it doesn't train on the data, a lawful route if data crosses borders, and a line in the privacy notice |
+| What if an answer is wrong? | Every figure is cited to its line, it declines when the records don't support an answer, and it never answers a dispute | AC1, AC2, AC4; OFF-01, OFF-15, OFF-27 | A named owner, reviewed samples of live answers, the release gate running in CI, and on-screen wording that says an answer can be wrong and how to query it |
+| What are the questions used for? | Only to answer the person asking. The prototype doesn't store them, and query history doesn't change what a payer is told | Non-Goals, *Behavioural targeting* | A retention policy, and a decision on any other use before it starts, not after |
+
+Notes on two of the above points.
+
+**To check live answers, you have to keep them.** The prototype doesn't save any questions. A real version would need to, because you can't review an answer nobody kept. So the honest promise to payers is about use: their questions are kept only to answer them and to check the answers were right. Promising that nothing is stored would be untrue.
+
+**The questions could be useful for more than that, and this is left open.** There are two different uses. Looking at everyone's questions together shows which charges confuse people, and that's a reason to make the invoice clearer. Looking at one payer's questions could help predict who will pay late. That second use is profiling. Before doing it, payers would need to be told and given a way to opt out, and it would need its own review. This is an open question in the spec.
+
+---
 ## Layout
 
 ```
