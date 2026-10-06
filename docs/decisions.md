@@ -8,7 +8,7 @@ Those are requirements defects, not coding defects. Catching one at this stage c
 
 Prototyping doesn't finish discovery. The spec still has open questions that need customer research, architecture and legal.
 
-Versions that carried only copy edits are omitted from the table below, and three that changed the spec without changing what gets built are listed after it. The spec itself is [`invoice_qa_feature_spec.md`](invoice_qa_feature_spec.md).
+Versions that carried only copy edits are omitted from the table below, and four that changed the spec without changing what gets built are listed after it. The spec itself is [`invoice_qa_feature_spec.md`](invoice_qa_feature_spec.md).
 
 | Version | Change |
 |---|---|

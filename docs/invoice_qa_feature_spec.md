@@ -292,10 +292,6 @@ Groundedness and hallucination rate gate release; the rest are directional.
 
 ---
 
----
-
----
-
 ## Decision record
 
 Eleven revisions, most of them prompted by using the prototype rather than by reviewing the document: [`decisions.md`](decisions.md).
