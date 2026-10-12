@@ -1,6 +1,7 @@
 import "dotenv/config"; // loads .env into process.env before anything reads it
 import express from "express";
 import Anthropic from "@anthropic-ai/sdk";
+import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -235,12 +236,17 @@ app.post("/api/route-to-merchant", (req, res) => {
   // The point is fewer interruptions for a small business, so sending the same
   // request twice works against the feature rather than for it.
   // An entry is only needed for as long as it can match, so it goes once its
-  // window has passed. The key holds the message text.
+  // window has passed.
   const now = Date.now();
   for (const [k, sentAt] of recentHandoffs) {
     if (now - sentAt >= HANDOFF_WINDOW_MS) recentHandoffs.delete(k);
   }
-  const key = `${invoiceId ?? "none"}::${composed}`;
+  // A fingerprint is enough to spot the same message twice, so the text
+  // itself is never kept on the server.
+  const key = crypto
+    .createHash("sha256")
+    .update(`${invoiceId ?? "none"}::${composed}`)
+    .digest("hex");
   if (recentHandoffs.has(key)) {
     return res.status(409).json({ ok: false, reason: "already sent" });
   }
