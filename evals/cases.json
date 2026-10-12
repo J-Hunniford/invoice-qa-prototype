@@ -441,6 +441,32 @@
         "state": "no_history",
         "messageIncludes": "12 months"
       }
+    },
+    {
+      "id": "OFF-31",
+      "ac": "AC1",
+      "name": "An answer with an uncited figure is declined, not shown",
+      "intent": {
+        "intent": "factual",
+        "referenced_invoice_ids": [],
+        "implies_older_history": false,
+        "needs_history": false
+      },
+      "result": {
+        "status": "answered",
+        "answer": "The late fee was $27.00 [1] and freight added $310.00.",
+        "citations": [
+          {
+            "invoice_id": "INV-1014",
+            "line_item": "Late fee",
+            "amount": 27
+          }
+        ]
+      },
+      "expect": {
+        "state": "cannot_answer",
+        "noRetry": true
+      }
     }
   ],
   "online": [
