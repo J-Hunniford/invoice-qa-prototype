@@ -191,7 +191,7 @@ app.get("/api/invoices", (_req, res) => {
    same thing twice. In production this belongs in the support channel with a
    proper window and identity; here it demonstrates that the guard exists on
    the server rather than only in the browser. */
-const recentHandoffs = new Map();
+const recentHandoffs = new Set();
 
 /* Long enough to absorb a double-click, a refresh, or a back-button
    resubmission, which is what this guards against. Not a quota on how often a
@@ -235,12 +235,6 @@ app.post("/api/route-to-merchant", (req, res) => {
 
   // The point is fewer interruptions for a small business, so sending the same
   // request twice works against the feature rather than for it.
-  // An entry is only needed for as long as it can match, so it goes once its
-  // window has passed.
-  const now = Date.now();
-  for (const [k, sentAt] of recentHandoffs) {
-    if (now - sentAt >= HANDOFF_WINDOW_MS) recentHandoffs.delete(k);
-  }
   // A fingerprint is enough to spot the same message twice, so the text
   // itself is never kept on the server.
   const key = crypto
@@ -250,7 +244,10 @@ app.post("/api/route-to-merchant", (req, res) => {
   if (recentHandoffs.has(key)) {
     return res.status(409).json({ ok: false, reason: "already sent" });
   }
-  recentHandoffs.set(key, now);
+  // An entry is only needed for as long as it can match, so it is deleted when
+  // its window ends, whether or not another message ever arrives.
+  recentHandoffs.add(key);
+  setTimeout(() => recentHandoffs.delete(key), HANDOFF_WINDOW_MS).unref();
   // The message itself stays out of the log. It was written for the merchant.
   console.log(
     `[route→merchant] ${dataset.merchant.name} | invoice: ${invoiceId ?? "none"} | ` +
