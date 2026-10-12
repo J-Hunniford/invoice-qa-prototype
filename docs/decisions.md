@@ -1,6 +1,6 @@
 # What changed, and why
 
-The spec was drafted and validated first. The prototype was built to that spec, and the spec then changed eleven times, most of them prompted by building it.
+The spec was drafted and validated first. The prototype was built to that spec, and the spec then changed twelve times, most of them prompted by building it.
 
 Reviewing a document catches requirements that can't be tested. Building the feature catches requirements that are wrong: a criterion that reads cleanly on the page but tells a customer something untrue, or leaves an invoice unpaid that could have been settled in a click.
 
@@ -23,6 +23,7 @@ Versions that carried only copy edits are omitted from the table below, and four
 | v0.13 | **The notification route withdrawn; one way to reach a person.** AC10 offered two, writing a message or sending a bare note that a query existed. The second told the merchant something had happened without saying what, so their only move was to make contact and ask, which is the round trip this feature exists to remove. |
 | v0.14 | **Payment offered on dispute-shaped questions, below the route to a person.** AC13 had suppressed payment wherever a question sounded like a complaint, which is not the same as an invoice being contested. Someone annoyed about a late delivery usually still owes the money, and removing the payment route guaranteed the invoice sat unpaid while they wrote and waited. Suppression now keys on the invoice, not on how the question was classified. |
 | v0.17 | **The record keeps every message, not just the last one.** AC14 said "a record of what was sent remains available", which the prototype implemented as one record per invoice. Sending a follow-up therefore erased the message before it. That defeats the reason the record exists: the case it was written for is a customer who wrote in anger and wants to check later what actually left, and a polite second message would have deleted the angry first one. The criterion now says every message. |
+| v0.20 | **Citations moved out of the sentence.** AC1 required each figure's invoice number and line item inline, beside the figure. The prototype marks each figure with a number and lists the invoice and line item under the answer, and the criterion had not been updated to match. It now specifies the marker and the list. |
 
 These changed the spec without changing what gets built:
 

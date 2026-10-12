@@ -1,6 +1,6 @@
 # Feature Name: Ask About This Invoice
 
-**Status:** Draft, portfolio/demonstration spec (v0.19)
+**Status:** Draft, portfolio/demonstration spec (v0.20)
 **Author:** J-Hunniford
 **Domain:** Customer Portal, AR Automation
 
@@ -80,7 +80,7 @@ Explicitly out of scope for v1:
 
 > **Given** a customer is viewing an invoice in the portal and asks a question referencing that invoice or their invoices with the same merchant within the last 12 months,
 > **When** retrieval returns one or more source records that directly support the figures/claims needed to answer,
-> **Then** the system returns an answer, and every figure in the answer is accompanied inline by the invoice number and line-item reference it came from (e.g., "$142.00 on Invoice #INV-2041, line item 'Delivery surcharge'").
+> **Then** the system returns an answer, every figure in the answer carries an inline marker, and the invoice number and line-item reference each marker stands for are listed with the answer (e.g., "$142.00 [1]" in the answer, and "$142.00 · INV-2041 · Delivery surcharge" as the first entry listed beneath it).
 
 ### AC2: Decline to answer (data/confidence miss)
 
@@ -294,6 +294,6 @@ Groundedness and hallucination rate gate release; the rest are directional.
 
 ## Decision record
 
-Eleven revisions, most of them prompted by using the prototype rather than by reviewing the document: [`decisions.md`](decisions.md).
+Twelve revisions, most of them prompted by using the prototype rather than by reviewing the document: [`decisions.md`](decisions.md).
 
 ---
