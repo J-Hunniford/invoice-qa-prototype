@@ -753,6 +753,40 @@
           "INV-1058"
         ]
       }
+    },
+    {
+      "id": "ON-26",
+      "ac": "AC6",
+      "name": "A message about an invoice that can't be found is not sent",
+      "route": {
+        "invoiceId": "INV-9999",
+        "message": "Could you explain this charge please?"
+      },
+      "expect": {
+        "routeOk": false
+      }
+    },
+    {
+      "id": "ON-27",
+      "ac": "Edge case",
+      "name": "An oversized question is rejected before retrieval or the model",
+      "question": "Why is this invoice higher than the last one? Why is this invoice higher than the last one? Why is this invoice higher than the last one? Why is this invoice higher than the last one? Why is this invoice higher than the last one? Why is this invoice higher than the last one? Why is this invoice higher than the last one? Why is this invoice higher than the last one? Why is this invoice higher than the last one? Why is this invoice higher than the last one? Why is this invoice higher than the last one? Why is this invoice higher than the last one?",
+      "invoiceId": "INV-1071",
+      "expect": {
+        "state": "invalid"
+      }
+    },
+    {
+      "id": "ON-28",
+      "ac": "Edge case",
+      "name": "An oversized message is not sent",
+      "route": {
+        "invoiceId": "INV-1071",
+        "message": "Could you look into the freight charge on this invoice for me? Could you look into the freight charge on this invoice for me? Could you look into the freight charge on this invoice for me? Could you look into the freight charge on this invoice for me? Could you look into the freight charge on this invoice for me? Could you look into the freight charge on this invoice for me? Could you look into the freight charge on this invoice for me? Could you look into the freight charge on this invoice for me? Could you look into the freight charge on this invoice for me? Could you look into the freight charge on this invoice for me? Could you look into the freight charge on this invoice for me? Could you look into the freight charge on this invoice for me? Could you look into the freight charge on this invoice for me? Could you look into the freight charge on this invoice for me? Could you look into the freight charge on this invoice for me? Could you look into the freight charge on this invoice for me? Could you look into the freight charge on this invoice for me? Could you look into the freight charge on this invoice for me? Could you look into the freight charge on this invoice for me? Could you look into the freight charge on this invoice for me? Could you look into the freight charge on this invoice for me? Could you look into the freight charge on this invoice for me? Could you look into the freight charge on this invoice for me? Could you look into the freight charge on this invoice for me? Could you look into the freight charge on this invoice for me? Could you look into the freight charge on this invoice for me? Could you look into the freight charge on this invoice for me? Could you look into the freight charge on this invoice for me? Could you look into the freight charge on this invoice for me? Could you look into the freight charge on this invoice for me? Could you look into the freight charge on this invoice for me? Could you look into the freight charge on this invoice for me? Could you look into the freight charge on this invoice for me? Could you look into the freight charge on this invoice for me?"
+      },
+      "expect": {
+        "routeOk": false
+      }
     }
   ]
 }

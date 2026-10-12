@@ -198,6 +198,11 @@ const recentHandoffs = new Map();
    minute later is not making a mistake. */
 const HANDOFF_WINDOW_MS = Number(process.env.HANDOFF_WINDOW_MS ?? 60_000);
 
+/* Edge Cases — oversized input is rejected before retrieval or the model see
+   it. A question is a sentence or two; a message to a supplier runs longer. */
+const MAX_QUESTION_CHARS = 500;
+const MAX_MESSAGE_CHARS = 2000;
+
 app.post("/api/route-to-merchant", (req, res) => {
   const { invoiceId, message, simulateFailure } = req.body ?? {};
 
@@ -210,6 +215,15 @@ app.post("/api/route-to-merchant", (req, res) => {
   if (!composed) {
     return res.status(400).json({ ok: false, reason: "nothing to send" });
   }
+  if (composed.length > MAX_MESSAGE_CHARS) {
+    return res.status(400).json({ ok: false, reason: "message too long" });
+  }
+
+  // AC6 — the same check the Q&A runs, so a message can't be attached to an
+  // invoice the customer has no claim on.
+  if (!authorizeInvoice(ctx, invoiceId).ok) {
+    return res.status(404).json({ ok: false, reason: "invoice not found" });
+  }
 
   // AC11 — the forward can fail, and a failure must never be reported as a
   // success. Test hook, same idea as the AC5 one: a stubbed channel won't fail
@@ -220,15 +234,21 @@ app.post("/api/route-to-merchant", (req, res) => {
 
   // The point is fewer interruptions for a small business, so sending the same
   // request twice works against the feature rather than for it.
+  // An entry is only needed for as long as it can match, so it goes once its
+  // window has passed. The key holds the message text.
+  const now = Date.now();
+  for (const [k, sentAt] of recentHandoffs) {
+    if (now - sentAt >= HANDOFF_WINDOW_MS) recentHandoffs.delete(k);
+  }
   const key = `${invoiceId ?? "none"}::${composed}`;
-  const seen = recentHandoffs.get(key);
-  if (seen && Date.now() - seen < HANDOFF_WINDOW_MS) {
+  if (recentHandoffs.has(key)) {
     return res.status(409).json({ ok: false, reason: "already sent" });
   }
-  recentHandoffs.set(key, Date.now());
+  recentHandoffs.set(key, now);
+  // The message itself stays out of the log. It was written for the merchant.
   console.log(
     `[route→merchant] ${dataset.merchant.name} | invoice: ${invoiceId ?? "none"} | ` +
-      `message: "${composed}"`,
+      `message sent (${composed.length} characters)`,
   );
   res.json({ ok: true, merchant: dataset.merchant.name });
 });
@@ -238,6 +258,12 @@ app.post("/api/ask", async (req, res) => {
 
   if (!question || !question.trim()) {
     return res.status(400).json({ state: "invalid", message: "Ask a question first." });
+  }
+  if (question.length > MAX_QUESTION_CHARS) {
+    return res.status(400).json({
+      state: "invalid",
+      message: `That's too long for me to answer. Keep your question under ${MAX_QUESTION_CHARS} characters.`,
+    });
   }
 
   // Test hook, so the operational-failure path (AC5) can be shown without

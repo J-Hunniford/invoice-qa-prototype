@@ -287,6 +287,7 @@ function askPanel(inv) {
      holding a real question reads as a suggestion, but cannot be used as one:
      the customer has to retype it, and it disappears the moment they start. */
   inputEl.placeholder = "What would you like to know?";
+  inputEl.maxLength = 500; // the server rejects anything longer
   buttonEl = document.createElement("button");
   buttonEl.type = "submit";
   buttonEl.className = "ask-button";
@@ -831,6 +832,7 @@ function routeAction({ openCompose = false } = {}) {
     box.className = "handoff-box";
     box.rows = 4;
     box.placeholder = "Type your message…";
+    box.maxLength = 2000; // the server rejects anything longer
     box.value = drafts.get(key)?.message ?? "";
     box.addEventListener("input", () => {
       const d = drafts.get(key) ?? {};
