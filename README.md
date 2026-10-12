@@ -80,7 +80,7 @@ question
 An LLM is used twice, for two different jobs, and ordinary code does everything else:
 
 - **Classifying the question.** The LLM returns a label, such as "dispute" or "factual", plus any invoice numbers the question names. It doesn't answer. Code then acts on the label. Disputes, contact requests, cross-merchant questions, messages that don't ask anything, and questions naming an invoice that wasn't retrieved are all settled in code, so they never reach the answering call.
-- **Writing the answer.** The LLM works only from the invoices the code retrieved, and says whether they supported an answer. Code then decides what the customer sees: the answer with its citations or a decline, a note if older invoices were left out, and the options to pay or write to the merchant.
+- **Writing the answer.** The LLM works only from the invoices the code retrieved, and says whether they supported an answer. Code then decides what the customer sees: the answer with its citations or a decline, a note if older invoices were left out, and the options to pay or write to the merchant. Before an answer is shown, code checks every money figure in it against the citations, and declines if one has none.
 
 Spotting a dispute is the LLM's job, but refusing to answer one is left to code, because in a financial context a confident wrong answer is worse than no answer.
 
@@ -112,7 +112,7 @@ Push where the system has to make a judgement call:
 - **Just vent.** *"This supplier is useless."* There's no question in it, so it says what it's for and stops. It deliberately doesn't offer to forward what you wrote, since that would make it easy to send an angry message to a supplier you still have to deal with.
 - **Say the same thing three ways.** Do the answers agree?
 
-**What counts as a finding.** Anything that surprises you, including a response that follows the spec and still feels wrong. Note the invoice, what you asked, and what you expected. Several of the spec's eleven changes started exactly like that. In one, a customer asking about a late fee got a correct answer and was then offered only a conversation with the merchant, on an invoice they could have paid in one click. The system was working as specified, so the change went into the spec as AC13, which now has eval cases to keep it in place. [`docs/decisions.md`](docs/decisions.md) records all eleven changes.
+**What counts as a finding.** Anything that surprises you, including a response that follows the spec and still feels wrong. Note the invoice, what you asked, and what you expected. Several of the spec's twelve changes started exactly like that. In one, a customer asking about a late fee got a correct answer and was then offered only a conversation with the merchant, on an invoice they could have paid in one click. The system was working as specified, so the change went into the spec as AC13, which now has eval cases to keep it in place. [`docs/decisions.md`](docs/decisions.md) records all twelve changes.
 
 ---
 
@@ -120,12 +120,12 @@ Push where the system has to make a judgement call:
 
 | Spec | Requirement | Code | How to check |
 |---|---|---|---|
-| **AC1** | Answers cite every figure | `server.js` → `answer()`, `ANSWER_SCHEMA` | INV-1014 by hand; OFF-15 |
+| **AC1** | Answers cite every figure | `server.js` → `answer()`, `ANSWER_SCHEMA`; `lib/core.js` → `decidePostAnswer()`, `uncitedFigures()` | INV-1014 by hand; OFF-15, OFF-31 |
 | **AC2** | Declines when the records can't answer | `lib/core.js` → `decideRetrieved()`, `decidePostAnswer()` | INV-1071 by hand; OFF-27 |
 | **AC3** | Says when there's nothing earlier to compare | `lib/core.js` → `decidePostAnswer()` | INV-1001 by hand |
 | **AC4** | Never answers a dispute | `lib/core.js` → `decidePreAnswer()` | INV-1071 by hand; OFF-01, OFF-02 |
 | **AC5** | An outage looks unlike a decline | `server.js` catch → `app.js` retry counter | Failure button; ON-18 |
-| **AC6** | Checks ownership before retrieval | `lib/core.js` → `authorizeInvoice()`, `payerVisible()` | OFF-19, ON-20 (stubbed) |
+| **AC6** | Checks ownership before retrieval | `lib/core.js` → `authorizeInvoice()`, `payerVisible()` | OFF-19, ON-20, ON-26 (stubbed) |
 | **AC7** | Only the invoice on screen | `app.js` → `askPanel()` | DOM-13 |
 | **AC8** | Switching invoice clears the answer | `app.js` → `select()`, `drafts`, `clearDraft()` | DOM-03 to DOM-06 |
 | **AC9** | Answers labelled as automated | `index.html` → `.disclosure`; `app.js` → `labelFor()` | DOM-11 |
@@ -137,22 +137,23 @@ Push where the system has to make a judgement call:
 | Non-Goal | 12-month history window | `lib/core.js` → `windowCutoff()`, `decidePreAnswer()`, `decideRetrieved()`, `decidePostAnswer()` | INV-1071 by hand; OFF-08, OFF-25, OFF-26, OFF-29, OFF-30 |
 | Non-Goal | Other merchants out of scope | `lib/core.js` → `decidePreAnswer()` | Any invoice by hand |
 | Edge case | Partial data means a decline | `lib/core.js` → `decideRetrieved()`; `answer()` system prompt, rule 3 | OFF-27, OFF-28, ON-25 |
+| Edge case | Oversized input is rejected | `server.js` → `MAX_QUESTION_CHARS`, `MAX_MESSAGE_CHARS` | ON-27, ON-28 |
 
 ---
 
 ## Evals
-The evals are 62 cases, each pairing a question or situation with what an acceptable response looks like. Because the LLM's wording varies from run to run, they check properties of a response, such as whether every figure is cited, not its exact text. There are two sets.
+The evals are 66 cases, each pairing a question or situation with what an acceptable response looks like. Because the LLM's wording varies from run to run, they check properties of a response, such as whether every figure is cited, not its exact text. There are two sets.
 
 ```bash
-npm install && npm run eval:offline    # 39 evals, no API key or server needed, runs in seconds
-npm run eval                           # all 62, including 23 against the live LLM (needs a key and the server running)
+npm install && npm run eval:offline    # 40 evals, no API key or server needed, runs in seconds
+npm run eval                           # all 66, including 26 against the running app (needs a key and the server running)
 ```
 
-**Offline: the rules that don't depend on the LLM.** Some behaviour is fixed in code: a dispute never reaches the answering call, nothing older than 12 months is retrieved alongside the invoice on screen, the merchant's internal notes are stripped before anything reaches the screen or the LLM, and a disputed invoice never offers a Pay button. These evals run without calling the LLM. They feed the code fixed stand-ins for what the LLM would return, such as a question pre-labelled as a dispute or a reply that declines, and check the code handles each correctly, so these rules hold whatever the LLM says.
+**Offline: the rules that don't depend on the LLM.** Some behaviour is fixed in code: a dispute never reaches the answering call, nothing older than 12 months is retrieved alongside the invoice on screen, the merchant's internal notes are stripped before anything reaches the screen or the LLM, a disputed invoice never offers a Pay button, and an answer containing a figure with no citation is declined. These evals run without calling the LLM. They feed the code fixed stand-ins for what the LLM would return, such as a question pre-labelled as a dispute or a reply that declines, and check the code handles each correctly, so these rules hold whatever the LLM says.
 
 Thirteen of them load the page in a simulated browser (jsdom) and click through it. Three bugs found by hand in one afternoon were all combinations of rules that were each fine on their own, so these check guarantees across every combination: a sent message shows exactly once, a second message never replaces the first, typed text is never lost unless the customer deletes it, and an answer always belongs to the invoice on screen. [`evals/state-model.md`](evals/state-model.md) sets out the combinations and [`evals/dom.js`](evals/dom.js) tests them.
 
-**Online: what the LLM actually did.** Nineteen evals send a question end to end through the app and the live LLM and check what comes back: figures cited, declines where it can't answer, disputes recognised. Four more test sending a message to the merchant. A pass means it behaved on this run, not that it always will.
+**Online: what the LLM actually did.** Nineteen evals send a question end to end through the app and the live LLM and check what comes back: figures cited, declines where it can't answer, disputes recognised. One checks that an oversized question is rejected before it gets that far. Six more test sending a message to the merchant. A pass means it behaved on this run, not that it always will.
 
 ```
   PASS  OFF-01  AC4      Dispute intent never reaches the answer path
@@ -161,7 +162,7 @@ Thirteen of them load the page in a simulated browser (jsdom) and click through 
   PASS  DOM-01  INV1     The sent record appears exactly once, in every state
   PASS  DOM-09  INV6     Payment and routing match the state model, in order
   ...
-  39/39 passed
+  40/40 passed
 ```
 
 Each case is tagged with the acceptance criterion it covers, in [`evals/cases.json`](evals/cases.json). The table above maps criteria to cases.
@@ -171,8 +172,10 @@ Each case is tagged with the acceptance criterion it covers, in [`evals/cases.js
 **What a green run doesn't tell you.**
 
 - Whether an answer reads well or is useful. That needs a person; see "Try it".
-- Whether a figure is cited to the *right* line. The check only confirms each figure has a citation.
-- Whether it's ready to release. The spec's release gate is a golden set of at least 50 questions, run in CI before any prompt, LLM or retrieval change ships, with at least 99% of facts traced to a source. These 62 are run by hand.
+- Whether a figure is cited to the *right* line. The check confirms each figure has a citation, not that the citation matches the records. Code could verify that, and a production version should.
+- Whether anything other than a money figure is right. A wrong date or status would pass.
+- Whether it holds up against deliberate misuse. No eval tries to talk the assistant out of its rules.
+- Whether it's ready to release. The spec's release gate is a golden set of at least 50 questions, run in CI before any prompt, LLM or retrieval change ships, with at least 99% of facts traced to a source. These 66 are run by hand.
 
 When exploring turns up a problem with the spec, the fix gets a case here, so it can't quietly break again.
 
@@ -182,9 +185,9 @@ When exploring turns up a problem with the spec, the fix gets a case here, so it
 
 The spec was drafted first, then put through [`pm-spec-workflow`](https://github.com/J-Hunniford/pm-spec-workflow), a spec review tool I built in Claude Code (private repo). Up to eight AI reviewers read it in parallel, each checking one thing: whether the criteria can be tested, whether the scope is clear, whether the language is vague, whether edge cases are covered, and so on. Their findings become a short set of questions for the PM. The reviewers only judge; a separate step rewrites the spec once those questions are answered.
 
-**The spec then changed eleven more times, most of them prompted by building the prototype.** A review is good at spotting requirements that can't be tested. It's much worse at spotting ones that are testable and simply wrong, and building the feature finds those. The clearest example: AC4 told the customer their dispute had been flagged for the merchant's support team, when nothing had been sent anywhere. A developer would have built exactly that, and every customer raising a dispute would have been told something untrue.
+**The spec then changed twelve more times, most of them prompted by building the prototype.** A review is good at spotting requirements that can't be tested. It's much worse at spotting ones that are testable and simply wrong, and building the feature finds those. The clearest example: AC4 told the customer their dispute had been flagged for the merchant's support team, when nothing had been sent anywhere. A developer would have built exactly that, and every customer raising a dispute would have been told something untrue.
 
-These were mistakes in the requirements, not the code. Finding them at this stage costs hours; finding them after engineering has built to the spec costs weeks. [`docs/decisions.md`](docs/decisions.md) lists all eleven changes.
+These were mistakes in the requirements, not the code. Finding them at this stage costs hours; finding them after engineering has built to the spec costs weeks. [`docs/decisions.md`](docs/decisions.md) lists all twelve changes.
 
 ---
 
@@ -193,6 +196,8 @@ These were mistakes in the requirements, not the code. Finding them at this stag
 Everything listed under *Where each requirement lives* is real code. These are the places where the prototype stands in for something the real platform would provide.
 
 **Authorization.** There's only one hardcoded customer, so `authorizeInvoice()` can't do a real ownership check. It still runs before anything is retrieved, and the message it gives, "couldn't find that invoice", never confirms whether an invoice exists. In production it would compare the invoice's customer with the logged-in one.
+
+**Not built.** Two things a production version would change. The customer's name is sent to the LLM with every answer call, and production should ask whether it's needed. The server also accepts two test hooks from any request, `simulateFailure` and `simulateUnavailable`, which would be removed.
 
 **Retrieval.** The data is a fixed JSON file, so retrieval is a simple filter and nothing is saved when the server restarts. A production version would use a proper index.
 
@@ -211,18 +216,35 @@ Product decisions live in the spec, not here. What v1 leaves out is in its Non-G
 
 This feature puts an LLM between a business and the people who owe it money, so AI governance questions are upfront requirements, not a review at the end. Most of the answers are already acceptance criteria with evals behind them. This section gathers the key points in one place and calls out what would need to be resolved before launching a feature like this one. None of the last column is built.
 
+**Why use an LLM at all.** It's a fair question, and for parts of this feature the answer is that you don't need one. The LLM does two jobs here. It works out what a payer is asking, however they word it, and it writes the reply. Ordinary code can't do either well. Everything else is code: fetching the records, checking every money figure against its citation, refusing to answer disputes, and deciding what the payer sees. The LLM can't act on anything. It can't change an invoice, send a message or take a payment, so the worst it can do is say something wrong.
+
+That risk is real, because a business can be held to what its assistant tells a customer. Code checks the money figures, but not dates, statuses or a sentence like "no late fee will be added". A production version should go further and have code work out the facts, such as what changed between two invoices, leaving the LLM only to put them into words. A company could also reasonably decide that some common questions don't need an LLM, and answer those from a template.
+
+**Which rules apply depends on where the payers are, and that isn't decided here.** If any of them are in the EU, the EU AI Act applies, and it can also reach a company based elsewhere if its AI system is used there. In the US, state privacy laws and state AI disclosure laws would need checking, and they vary by state. Building to the Act's standard makes sense either way, given that it is currently one of the strictest legal frameworks for AI governance, so meeting it is likely to cover most of what other markets ask. A feature like this one carries few obligations under the Act, and its standards are easier to meet from the start than later.
+
+**What the Act would ask for.** This feature answers questions from records. It doesn't make decisions about the payer, so it isn't one of the uses the Act bans or treats as high-risk. That leaves two duties: tell people they're dealing with an AI system (Article 50), and make sure the staff who run it understand it (Article 4). The LLM provider has separate duties of its own.
+
+If this feature developed further to use the questions to predict who will pay late, that could count as assessing creditworthiness, which the Act does treat as high-risk when the payer is a person, such as a sole trader. The feature doesn't do this, and it's an open question in the spec.
+
 | Question | What the prototype does | Where to check | Still needed before launch |
 |---|---|---|---|
-| Does the payer know it's automated? | A permanent notice on the panel, and a label on every answer so it survives a screenshot | AC9; DOM-11 | Legal confirmation of wording and placement in each market |
-| What leaves the platform? | Each question goes to an outside LLM provider with the customer and merchant names and the invoice fields the payer is entitled to see. The merchant's internal notes are removed before retrieval returns, so the LLM never has them | `payerVisible()`; OFF-19, ON-20 | A contract with the provider, confirmation it doesn't train on the data, a lawful route if data crosses borders, and a line in the privacy notice |
-| What if an answer is wrong? | Every figure is cited to its line, it declines when the records don't support an answer, and it never answers a dispute | AC1, AC2, AC4; OFF-01, OFF-15, OFF-27 | A named owner, reviewed samples of live answers, the release gate running in CI, and on-screen wording that says an answer can be wrong and how to query it |
+| Does the payer know it's AI? | A permanent notice on the panel, and a label on every answer so it survives a screenshot. Both say "automated", not "AI" | AC9; DOM-11 | A decision on whether "automated" is clear enough, since the Act expects people to be told it's an AI system. Legal confirmation of wording and placement in each market |
+| Can software tell the answers are AI-generated? | No. The label is text for people to read | AC9 | A legal view on whether the Act's rule on marking AI-generated content covers these answers |
+| Can a payer see someone else's invoice? | The check runs before any records are fetched and before a message is sent to the merchant, and a miss never confirms whether an invoice exists. There's only one hardcoded customer, so it can't yet check whose invoice it is | AC6; `authorizeInvoice()`; ON-26 | A real ownership check against the logged-in customer, on every endpoint |
+| What leaves the platform? | Each question goes to an outside LLM provider with the customer and merchant names and the invoice fields the payer is entitled to see. The merchant's internal notes are removed before retrieval returns, so the LLM never has them | `payerVisible()`; OFF-19, ON-20 | A contract with the provider, confirmation it doesn't train on the data, a lawful route if data crosses borders, and a line in the privacy notice. For EU payers, GDPR sets the terms |
+| What if a payer types something personal? | It goes to the LLM provider as typed. Nothing filters it, though a question is capped at 500 characters | `classify()` and `answer()` in `server.js`; ON-27 | A decision: filter it, warn the payer, or accept it and say so in the privacy notice |
+| What if an answer is wrong? | Every figure is cited to its line, and code declines any answer with a figure that has no citation. It declines when the records don't support an answer, and it never answers a dispute | AC1, AC2, AC4; OFF-01, OFF-15, OFF-27, OFF-31 | A named owner, reviewed samples of live answers, the release gate running in CI, and on-screen wording that says an answer can be wrong and how to query it |
 | What are the questions used for? | Only to answer the person asking. The prototype doesn't store them, and query history doesn't change what a payer is told | Non-Goals, *Behavioural targeting* | A retention policy, and a decision on any other use before it starts, not after |
+| Where do sent messages end up? | The customer's record of what they sent is kept on purpose (AC14), in the browser for this prototype. The server logs that a message was sent but not what it said. The duplicate-send check holds the text for 60 seconds, then drops it | `/api/route-to-merchant` in `server.js`; `sentToMerchant` in `app.js` | The customer's record stored properly, with a retention period and access rules |
+| Do the people running it understand it? | Not applicable to a prototype | | Training for the staff who operate the feature and review its answers |
 
-Notes on two of the above points.
+Notes on three of the above points.
 
-**To check live answers, you have to keep them.** The prototype doesn't save any questions. A real version would need to, because you can't review an answer nobody kept. So the honest promise to payers is about use: their questions are kept only to answer them and to check the answers were right. Promising that nothing is stored would be untrue.
+**What the LLM is sent.** The LLM is called twice. The first call works out what kind of question it is, and gets the question but not the invoice. The second call writes the answer, and gets only the invoice details the payer can already see on their own screen. The merchant's internal notes are never sent. So if a payer tries to trick the assistant into revealing them, there is nothing for it to reveal. The code sends only fields on an approved list. If a new field is added to an invoice later, it isn't sent until someone adds it to that list.
 
-**The questions could be useful for more than that, and this is left open.** There are two different uses. Looking at everyone's questions together shows which charges confuse people, and that's a reason to make the invoice clearer. Looking at one payer's questions could help predict who will pay late. That second use is profiling. Before doing it, payers would need to be told and given a way to opt out, and it would need its own review. This is an open question in the spec.
+**Storing questions.** The prototype doesn't save the questions payers ask. A real version would have to, because nobody can check whether an answer was right if it wasn't kept. So the privacy notice shouldn't say that nothing is stored. It should say that questions are kept, and used only to answer them and to check the answers.
+
+**Other uses for the questions.** The questions could be used in two more ways, and neither is decided. The first is to look at all the questions together to see which charges confuse people, and then make the invoice clearer. That carries little risk. The second is to look at one payer's questions to predict whether they will pay late. That is profiling, and the EU AI Act may treat it as high-risk. Payers would need to be told and given a way to opt out, and it would need its own review first. This is an open question in the spec.
 
 ---
 ## Layout
@@ -250,3 +272,4 @@ invoice-qa-prototype/
 ```
 
 `data/synthetic_invoice_data.json` includes a `test_notes` section saying which invoice to open for the less obvious questions, and what each one is meant to show. Worth a look before you start exploring.
+
