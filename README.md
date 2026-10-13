@@ -82,6 +82,8 @@ An LLM is used twice, for two different jobs, and ordinary code does everything 
 - **Classifying the question.** The LLM returns a label, such as "dispute" or "factual", plus any invoice numbers the question names. It doesn't answer. Code then acts on the label. Disputes, contact requests, cross-merchant questions, messages that don't ask anything, and questions naming an invoice that wasn't retrieved are all settled in code, so they never reach the answering call.
 - **Writing the answer.** The LLM works only from the invoices the code retrieved, and says whether they supported an answer. Code then decides what the customer sees: the answer with its citations or a decline, a note if older invoices were left out, and the options to pay or write to the merchant. Before an answer is shown, code checks every money figure in it against the citations, and declines if one has none.
 
+**This is retrieval-augmented generation (RAG).** The code fetches the relevant invoices first, and the LLM is given only those records to answer from, not left to answer from general knowledge. The retrieval is a plain lookup, not a search by meaning. Invoices are structured records, so code can pick the right ones by customer, by date and by what the payer is allowed to see. A search by meaning would cost more and could fetch the wrong invoice, without finding anything a lookup misses. The spec explains why this approach was chosen over fine-tuning. 
+
 Spotting a dispute is the LLM's job, but refusing to answer one is left to code, because in a financial context a confident wrong answer is worse than no answer.
 
 Both LLM calls use Claude. Which LLM to use in production, and whether both calls need the same one, is an engineering decision.
@@ -215,7 +217,7 @@ Product decisions live in the spec, not here. What v1 leaves out is in its Non-G
 ---
 ## Governance
 
-This feature puts an LLM between a business and the people who owe it money, so AI governance questions are upfront requirements, not a review at the end. Most of the answers are already acceptance criteria with evals behind them. This section gathers the key points in one place and calls out what would need to be resolved before launching a feature like this one. None of the last column is built.
+This feature puts an LLM between a business and the people who owe it money, so AI governance questions are upfront requirements, not a review at the end. Most of the answers are already acceptance criteria with evals behind them. This section gathers the key points in one place and calls out what would need to be resolved before launching a feature like this one.
 
 **Why use an LLM at all.** It's a fair question, and for parts of this feature the answer is that you don't need one. The LLM does two jobs here. It works out what a payer is asking, however they word it, and it writes the reply. Ordinary code can't do either well. Everything else is code: fetching the records, checking every money figure against its citation, refusing to answer disputes, and deciding what the payer sees. The LLM can't act on anything. It can't change an invoice, send a message or take a payment, so the worst it can do is say something wrong.
 
@@ -226,6 +228,8 @@ That risk is real, because a business can be held to what its assistant tells a 
 **What the Act would ask for.** This feature answers questions from records. It doesn't make decisions about the payer, so it isn't one of the uses the Act bans or treats as high-risk. That leaves two duties: tell people they're dealing with an AI system (Article 50), and make sure the staff who run it understand it (Article 4). The LLM provider has separate duties of its own.
 
 If this feature developed further to use the questions to predict who will pay late, that could count as assessing creditworthiness, which the Act does treat as high-risk when the payer is a person, such as a sole trader. The feature doesn't do this, and it's an open question in the spec.
+
+The table below takes each governance question in turn. It shows what the prototype does today, where to check that in the code or the evals, and what a real launch would still need. None of the last column is built.
 
 | Question | What the prototype does | Where to check | Still needed before launch |
 |---|---|---|---|
