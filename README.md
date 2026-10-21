@@ -86,7 +86,7 @@ An LLM is used twice, for two different jobs, and ordinary code does everything 
 
 Spotting a dispute is the LLM's job, but refusing to answer one is left to code, because in a financial context a confident wrong answer is worse than no answer.
 
-Both LLM calls use Claude. Which LLM to use in production, and whether both calls need the same one, is an engineering decision.
+In the prototype, both LLM calls use Claude. In production, either call could use a different LLM, and the two calls don't have to match. That could be a closed LLM or an open-weight one, large or small, run by the provider, in the platform's own cloud, or on hardware the platform runs itself. Each call has a small job: one labels the question, the other answers it from the records it's given. So swapping either LLM doesn't remove the guardrails. I haven't tested whether a smaller model is good enough for either job.
 
 ---
 
