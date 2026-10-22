@@ -48,6 +48,8 @@ The data is one fictional customer, Marrow & Co., buying industrial parts from F
 
 Each invoice also has a **Simulate a system failure** button, marked on screen as *Prototype control, not part of the feature*. It's there for testing only, and a real customer would never see it. One of the criteria is that an outage must look nothing like a decline, and the only way to check that is to look, so a reviewer needs a way to cause one on demand.
 
+This section shows what happens to a question. The [service blueprint](docs/service-blueprint.md) shows the whole service around it: what the payer sees at each step, what the merchant does, and which parts aren't designed yet.
+
 ### How a question is handled
 
 ```
@@ -212,7 +214,7 @@ Everything listed under *Where each requirement lives* is real code. These are t
 
 **LLM choice.** Both calls use `claude-opus-5`, with the classifying call set to low effort because it's a narrow labelling task.
 
-Product decisions live in the spec, not here. What v1 leaves out is in its Non-Goals, and what's still undecided, such as which system delivers messages to the merchant, is in its Open Questions.
+Product decisions live in the spec, not here. What v1 leaves out is in its Non-Goals, and what's still undecided, such as whether the platform's messaging can carry replies both ways.
 
 ---
 ## Governance
@@ -275,6 +277,7 @@ invoice-qa-prototype/
 └── docs/
     ├── invoice_qa_feature_spec.md   # the spec
     ├── decisions.md                 # what changed in the spec, and why
+    ├── service-blueprint.md         # the whole service, step by step, and what isn't designed yet
     └── answer-with-citations.png    # the screenshot at the top of this README
 ```
 
