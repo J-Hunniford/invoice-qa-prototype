@@ -214,7 +214,7 @@ Everything listed under *Where each requirement lives* is real code. These are t
 
 **LLM choice.** Both calls use `claude-opus-5`, with the classifying call set to low effort because it's a narrow labelling task.
 
-Product decisions live in the spec, not here. What v1 leaves out is in its Non-Goals, and what's still undecided, such as whether the platform's messaging can carry replies both ways.
+Product decisions live in the spec, not here. What v1 leaves out is in its Non-Goals, and what's still undecided, such as whether the platform's messaging can carry replies both ways, is in its Open Questions.
 
 ---
 ## Governance
