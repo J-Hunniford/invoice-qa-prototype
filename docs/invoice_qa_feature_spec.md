@@ -1,6 +1,6 @@
 # Feature Name: Ask About This Invoice
 
-**Status:** Draft, portfolio/demonstration spec (v0.20)
+**Status:** Draft, portfolio/demonstration spec (v0.21)
 **Author:** J-Hunniford
 **Domain:** Customer Portal, AR Automation
 
@@ -42,13 +42,14 @@ In priority order:
 Explicitly out of scope for v1:
 
 - **Language/locale:** non-English questions are not supported.
-- **Channel:** the feature is web-portal only. Email, SMS, and voice are out of scope.
+- **Channel:** questions are asked in the web portal only. Asking by email, SMS or voice is out of scope.
 - **Multi-question bundling:** a single turn handles one question; bundled or multi-part questions in one message are not parsed as separate questions.
 - **Conversational memory:** each question is answered independently. The system does not retain context across turns, so a follow-up phrased as a continuation ("and the one before that?") is treated as a new question and, if it cannot stand alone, is declined under AC2. Question context comes from the invoice the customer has open (AC7), not from conversation history.
 - **Proactive surfacing:** the feature is invoked by the customer only. It does not proactively suggest questions or surface answers unsolicited.
 - **History depth:** retrieval is scoped to a rolling 12-month window (see Technical Constraints). Questions implying older history are disclosed as out of scope, not silently dropped or guessed at.
 - **Cross-merchant questions:** a customer's invoices from a different merchant on the same platform are not in scope.
 - **Dispute/refund handling:** this feature does not process disputes or refunds. It detects them, declines to answer, and offers the customer a route to a person (see AC4 and AC10).
+- **The conversation after a message is sent:** replies and further messages between the payer and the merchant are handled by the platform's messaging, not this feature (see Technical Constraints).
 - **Action-taking:** the feature answers questions; it does not modify invoices, apply discounts, or take payment actions.
 - **Behavioural targeting:** a payer's payment, dispute and query history is not used to vary what this feature tells them or how it prompts. Varying outreach by payer behaviour is a collections concern, handled in the outbound channels rather than here.
 
@@ -223,7 +224,7 @@ A send cannot be recalled, so one click must not perform one. The guard is again
 - **Authorization:** the session resolves to a customer_id, and an allowed-invoice check runs before retrieval (AC6). The prototype accompanying this spec stubs the check; production must implement it.
 - **Release gate:** a golden evaluation set of at least 50 representative Q&A pairs, covering happy path, no-answer, no-comparison-baseline and dispute cases, must pass groundedness ≥ 99% and hallucination ≤ 1% in CI before any prompt, model or retrieval change ships. A starting bar, to be tuned as real usage data accrues.
 - **The non-generative criteria are gated separately.** AC6 to AC14 are not generative behaviours and do not belong in a groundedness or hallucination measurement. They need their own deterministic suite, which must also gate release, because a correctness claim covering only the generative path leaves the guardrails unverified. The criteria that live in the browser need that suite to drive a rendered page, since their failures are combinations of state rather than wrong return values.
-- **Support routing:** the feature integrates with the platform's existing merchant support flow rather than standing up a new channel. Whether that channel exists and has capacity is an Open Question.
+- **Support routing:** the handoff (AC10) uses the platform's messaging rather than a channel of its own. It relies on that messaging carrying messages both ways between email and the portal, so a message sent in one appears in the other. Whether it does today, and has the capacity, is an Open Question.
 
 ---
 
@@ -277,10 +278,7 @@ Groundedness and hallucination rate gate release; the rest are directional.
 - What volume of dispute-shaped questions should be expected, and does the merchant support-routing channel have capacity for it? `[TBD]`
 - **Does the platform operate any payer-facing support channel of its own?** AC10 routes to the merchant, which covers the substance of a bill. It does not cover a payer who cannot use the portal at all, such as a login failure the merchant cannot fix. That path is unspecified. `[TBD: confirm with support/ops]`
 - **Should raising a query change anything on the invoice in the AR system, and can it?** Today it changes nothing, so the payer has no signal their query is live and nobody else in the merchant's business knows one is outstanding. Marking it *disputed* would be wrong: a question is not a dispute, and that status carries collection consequences that would suppress chasing on invoices nobody is contesting. A lighter signal is probably right, but the status vocabulary belongs to the AR system rather than to this feature. The second half is factual and unanswered: AC13 assumes an invoice can be flagged as contested, and the documented portal statuses are not known to include one. The platform does hold dispute history for a payer, so the capability may exist already in some form; establishing what it records, and whether it is per invoice or per account, would answer most of this. `[TBD: confirm with the owning team]`
-- **Which system carries the message to the merchant, and how does the reply get back?** An architecture decision, and the feature's requirements hold whichever way it goes: AC12 nothing sent unchosen, AC10 the assistant's question never forwarded, AC11 confirmed only once accepted. Three options: the portal holds it, which is what the prototype does and leaves the reply path unsolved; hand off to the customer's mail client, which solves the reply path by not owning it, at the cost of the platform going blind; or the platform sends and owns the reply address, which keeps both and is the likely production answer.
-
-  The reply path should drive the choice. If the merchant answers from their own inbox, the portal shows "sent" indefinitely and a customer answered last week may send again, producing the duplicate AC14 exists to prevent. Resolution also cannot be measured, since handoff completion counts messages leaving and nothing counts questions answered. `[TBD: architecture and the owning team]`
-
+- **Does the platform's messaging carry messages both ways between email and the portal today, and if not, who builds it?** The handoff relies on it (see Technical Constraints). It would have to settle two things. A reply sent by email skips the portal's checks, the payer's confirmation and the duplicate guard in AC14, and has to be shown to come from the payer. And nothing yet marks a conversation as finished, so whether a question was ever answered can't be measured. `[TBD: architecture and the owning team]`
 - **Should the platform screen the language of a message before passing it to the merchant?** The compose step and AC14's confirmation already prevent the main harm, since nothing written to the assistant is forwarded and the customer must address a person deliberately. Going further is a policy question rather than a technical one: whose standards apply, what a blocked customer is told, and whether a platform should edit what one business says to another. `[TBD: policy]`
 - **AI transparency obligations need legal confirmation.** AC9 specifies disclosure as defensible practice. Whether it is also a requirement, in what form and in which markets, depends on regimes including the EU AI Act and emerging US state legislation, and on where this merchant's payers are. If a specific wording or placement is mandated, AC9 becomes the floor rather than the specification. `[TBD: legal review]`
 - **Should the on-screen disclosure say more than AC9 requires?** Proposed and not built: wording on the panel notice that an answer can be wrong and the cited lines should be checked; a route on each answer for querying it, using AC10's existing message to the merchant; and a short "how this works" explanation of whether an outside provider helps produce the answers and what the questions are used for. If adopted these become additions to AC9, with eval cases. `[TBD: product, after legal review]`
